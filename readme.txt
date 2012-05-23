@@ -7,7 +7,6 @@ Tested up to: 3.3.2
 Stable tag: trunk
 
 
-Showr description
 
 == Description ==
 
