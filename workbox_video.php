@@ -302,7 +302,7 @@ class workbox_YV_video
     
     private function __getEditPage()
     {
-        global $wpdb, $wb_form_info;
+        global $wpdb, $wb_form_info, $wp_version;
         
         $item_id = isset($_GET['id'])?intval($_GET['id']):0;
         
@@ -391,9 +391,20 @@ class workbox_YV_video
                         <td width="30%" align="right" valign="top"><br><br><b>Video Description</td>
 			<td width="70%">
 			';
-			ob_start();
-			wp_editor(self::_get('description',$wb_form_info),'description', array('textarea_name'=>'description'));
-			$html.= '<div id="poststuff" >'.ob_get_clean().'</div>
+			if ( version_compare( $wp_version, '3.3', '>=' ) ) {
+			    ob_start();
+			    wp_editor(self::_get('description',$wb_form_info),'description', array('textarea_name'=>'description'));
+			    $html.= '<div id="poststuff" >'.ob_get_clean().'</div>';
+			}
+			else
+			{
+			    ob_start();
+			    the_editor(self::_get('description',$wb_form_info),'description');
+			    $str = '<div id="poststuff" >'.ob_get_clean().'</div>';
+			    $html.= str_replace('<textarea','<textarea style="width:100%" ', $str);
+			}
+			
+			$html.= '
 			</td>
                     </tr>
 		    <tr>
