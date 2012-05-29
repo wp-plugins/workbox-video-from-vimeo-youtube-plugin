@@ -68,6 +68,7 @@ class workbox_YV_video
     
     public function add_js()
     {
+	wp_deregister_script( 'jquery' );
 	wp_enqueue_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js');
         wp_enqueue_script('fancybox', WB_VID_URL.'jquery.fancybox.js');
     }
