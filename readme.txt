@@ -11,6 +11,7 @@ Stable tag: trunk
 == Description ==
 
 The plugin allows to create a video gallery on any wordpress-generated page. You can add videos from Youtube and Vimeo by simply pasting the video URL. Allows to control sort order of videos on the gallery page.
+This plugin is for advanced users. If you run into problems, please send us detailed notes about your set up and the errors and we'll do our best to get back to you.
 
 [Plugin Page Link](http://blog.workbox.com/wordpress-video-gallery-plugin/)
 
