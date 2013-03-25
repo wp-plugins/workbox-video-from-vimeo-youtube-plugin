@@ -6,13 +6,13 @@ Requires at least: 2.7
 Tested up to: 3.5.1
 Stable tag: trunk
 
-Quick and easy way to add and manage videos on your site or blog. Supports youtube and vimeo.
+Quick and easy way to add and manage videos on your site or blog. Supports Youtube and Vimeo.
 
 == Description ==
 
 The plugin allows to create a video gallery on any wordpress-generated page. You can add videos from Youtube and Vimeo by simply pasting the video URL. Allows to control sort order of videos on the gallery page.
 This plugin is for advanced users. If you run into problems, please send us detailed notes about your set up and the errors and we'll do our best to get back to you.
-Version 2.0: Added ability to create multiple galleries!
+* Version 2.0: Added ability to create multiple galleries!
 
 [Plugin Page on Workbox Site](http://blog.workbox.com/wordpress-video-gallery-plugin/)
 
@@ -31,6 +31,6 @@ On the plugin settings page you can also control the look and feel of the galler
 == Changelog ==
 
 = 2.0 =
-* Users can create as many galleries as they want. Each gallery cane be attached to one page.
-*Videos sort order: displaying the most recently added videos at the top of the list.
+* Users can create as many galleries as they want. Each gallery can be attached to one page.
+* Videos sort order: displaying the most recently added videos at the top of the list.
 
