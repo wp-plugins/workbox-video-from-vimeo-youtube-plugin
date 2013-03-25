@@ -1,16 +1,16 @@
 <?php
+
 /*
     Plugin Name: Workbox Video from Vimeo & Youtube Plugin
     Author: Workbox Inc.
     Author URI: http://www.workbox.com/
     Plugin URI: http://blog.workbox.com/wordpress-......./
-    Version: 1.0
-    Description: The plugin allows to create a video gallery on any wordpress-generated page. You can add videos from Youtube and Vimeo by simply pasting the video URL. Allows to control sort order of videos on the gallery page.
+    Version: 2.0
+    Description: escription goes here.
 
-    
     == Copyright ==
-    Copyright 2008-2012 Workbox Inc (email: support@workbox.com)
-    
+    Copyright 2008-2012 Workbox Inc (email: support@workbox.com) 
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -25,31 +25,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-define('WB_VID_DIR',dirname(__FILE__).'/');
-define('WB_VID_URL',WP_PLUGIN_URL.'/'.substr(WB_VID_DIR,strpos(WB_VID_DIR,'plugins')+8));
-define("WB_VIDEO_TABLE",'wb_video_VY');
-define("WB_VIDEO_PAGE",'wb_video_VY');
-define("WB_VIDEO_OPTIONS_PAGE",'wb_video_VY_options');
+	define('WB_VID_DIR',dirname(__FILE__).'/');
+	define('WB_VID_URL',WP_PLUGIN_URL.'/'.substr(WB_VID_DIR,strpos(WB_VID_DIR,'plugins')+8));
+	define("WB_VIDEO_TABLE",'wb_video_VY');
+	define("WB_VIDEO_GALLERIES_TABLE",'wb_video_galleries');
+	define("WB_VIDEO_PAGE",'wb_video_VY');
+	define("WB_VIDEO_OPTIONS_PAGE",'wb_video_VY_options');
+	define("WB_VIDEO_GALLERIES_PAGE",'wb_video_VY_galleries');
 
-// activation and deactivation hooks
-register_activation_hook( __FILE__, array('workbox_YV_video','activate') );
-register_deactivation_hook( __FILE__, array('workbox_YV_video','deactivate') );
+	// activation and deactivation hooks
+	register_activation_hook( __FILE__, array('workbox_YV_video','activate') );
+	register_deactivation_hook( __FILE__, array('workbox_YV_video','deactivate') );
 
-// initialisation function for the administration part of the plugin
-add_action('admin_init',array('workbox_YV_video','init'));
-// shows menu in admin  area
-add_action('admin_menu', array('workbox_YV_video','menu'));
-// shows the functionality for the selected page
-add_action('the_content',array('workbox_YV_video','inpost'));
-add_shortcode( 'workbox_video_YV_list', array('workbox_YV_video','shortcode') );
+	// initialisation function for the administration part of the plugin
+	add_action('admin_init',array('workbox_YV_video','init'));
+	// shows menu in admin  area
+	add_action('admin_menu', array('workbox_YV_video','menu'));
+	// shows the functionality for the selected page
+	add_action('the_content',array('workbox_YV_video','inpost'));
+	add_shortcode( 'workbox_video_YV_list', array('workbox_YV_video','shortcode') );
 
-// add required JS and CSS files
-add_action('wp_enqueue_scripts', array('workbox_YV_video','add_js'));
-add_action('init', array('workbox_YV_video','add_style'));
-add_action('wp_head',array('workbox_YV_video','add_custom_style'));
+	// add required JS and CSS files
+	add_action('wp_enqueue_scripts', array('workbox_YV_video','add_js'));
+	add_action('init', array('workbox_YV_video','add_style'));
+	add_action('wp_head',array('workbox_YV_video','add_custom_style'));
 
-class workbox_YV_video
-{
+class workbox_YV_video {
     public function add_custom_style()
     {
 	echo '
@@ -67,170 +68,193 @@ class workbox_YV_video
 	';
     }
     
-    public function add_js()
-    {
-	wp_deregister_script( 'jquery' );
+    public function add_js() {
+	/*wp_deregister_script( 'jquery' );
 	wp_enqueue_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js');
-        wp_enqueue_script('fancybox', WB_VID_URL.'jquery.fancybox.js');
+        wp_enqueue_script('fancybox', WB_VID_URL.'jquery.fancybox.js');*/
     }
     
-    public function add_style()
-    {
-        wp_enqueue_style('fancybox',WB_VID_URL.'jquery.fancybox.css');
+    public function add_style() {
+        //wp_enqueue_style('fancybox',WB_VID_URL.'jquery.fancybox.css');
     }
     
     // outputs the content then functionality is attached to specific page
-    public function inpost($content)
-    {
-	global $post;
-	$html = '';
-	
-	if (isset($post->ID) && get_option('wb_video_VY_fw') == 0 && $post->ID == get_option('wb_video_VY_page_id'))
-	{
-	    // call the output function
-	    $html = self::__getContent(0);
-	}
-	
-	return $content.$html;
+    public function inpost($content) {
+		global $wpdb, $posts;
+		$post_id = get_the_ID();
+		$flag == false;
+		if ($post_id != get_option('wb_video_VY_page_id')) {
+			$sql = 'select * from '.WB_VIDEO_GALLERIES_TABLE.' where is_live = 1 and post_id = '.$post_id;
+			$list = $wpdb->get_results($sql);
+			if (count($list > 0)) {
+				$content .= $list[0]->description;
+				$flag = true;
+			}
+		}
+		else {
+			$flag = true;
+		}
+		//$html = '';
+		if (isset($post_id) && get_option('wb_video_VY_fw') == 0 && $flag == true) {
+			// call the output function
+			$html .= self::__getContent(0);
+		}
+		return $content.$html;
     }
     
-    public function shortcode()
-    {
-	$html = '';
-	$html = self::__getContent(1);
-	return $html;
+    public function shortcode() {
+		$html = '';
+		$html = self::__getContent(1);
+		return $html;
     }
     
     // use this function to output the functionality anywhere in the code
-    public function showList()
-    {
-	$html = self::__getContent(2);
-	return $html;
+    public function showList() {
+		$html = self::__getContent(2);
+		return $html;
     }
     
-    private function __getContent($show_type)
-    {
-	global $wpdb;
-	
-	$page_len = intval(get_option('wb_video_VY_page_len'));
-	$total = $wpdb->get_var('select count(id) from '.WB_VIDEO_TABLE.' where is_live=1');
-        $page_html = '';
-	$sSQLLimit = '';
-	
-	// pages link
-	if ($page_len > 0 && $total>$page_len)
-	{
-	    $current_link = get_permalink();
-	    $aL = parse_url($current_link);
-	    $query = array();
-	    if ($_SERVER['QUERY_STRING'] != '')
-		$query = explode ('&',$_SERVER['QUERY_STRING']);
-	    $aQueryTmp = array();
-	    foreach($query as &$item)
-	    {
-		$s = explode('=',$item);
-		$aQueryTmp[$s[0]] = isset($s[1])?$s[1]:'';
-	    }
-	    
-	    $new_url = $aL['scheme'].'://'.$aL['host'].$aL['path'];
-	    $page_html = '';
-	    $page_html.= '<div class="wb_video_pager">
-		Page: ';
-	    $pages_count = ceil($total/$page_len);
-	    $current_page = isset($aQueryTmp['wb_video_page_id'])?intval($aQueryTmp['wb_video_page_id']):0;
-	    $current_page = max(0, min($current_page, $pages_count-1));
-	    $aPages = array();
-	    for($i = 0; $i<$pages_count; $i++)
-	    {
-		$sStart = ($current_page == $i?'<b>[':'');
-		$sEnd = ($current_page == $i?']</b>':'');
+	private function __getContent($show_type) {
+		global $wpdb, $posts;
+		$post_id = get_the_ID();
+		$page_len = intval(get_option('wb_video_VY_page_len'));
+		//$total = $wpdb->get_var('select count(id) from '.WB_VIDEO_TABLE.' where is_live=1');
+		$total = $wpdb->get_var('select count(a.id) from '.WB_VIDEO_TABLE.' a, '.WB_VIDEO_GALLERIES_TABLE.' b where a.is_live=1 and b.is_live=1 and b.post_id = '.$post_id.' and a.gallery_id = b.id');
+		$page_html = '';
+		$sSQLLimit = '';
+		// pages link
+		if ($page_len > 0 && $total>$page_len) {
+			$current_link = get_permalink();
+			$aL = parse_url($current_link);
+			$query = array();
+			if ($_SERVER['QUERY_STRING'] != '')
+			$query = explode ('&',$_SERVER['QUERY_STRING']);
+			$aQueryTmp = array();
+			foreach($query as &$item) {
+				$s = explode('=',$item);
+				$aQueryTmp[$s[0]] = isset($s[1])?$s[1]:'';
+			}
+			$new_url = $aL['scheme'].'://'.$aL['host'].$aL['path'];
+			$page_html = '';
+			$page_html.= '<div class="wb_video_pager">
+			Page: ';
+			$pages_count = ceil($total/$page_len);
+			$current_page = isset($aQueryTmp['wb_video_page_id'])?intval($aQueryTmp['wb_video_page_id']):0;
+			$current_page = max(0, min($current_page, $pages_count-1));
+			$aPages = array();
+			for($i = 0; $i<$pages_count; $i++) {
+				$sStart = ($current_page == $i?'<span>[':'');
+				$sEnd = ($current_page == $i?']<span>':'');
+				$aQueryTmp['wb_video_page_id'] = $i;
+				$aPages[] = '<a href="'.$new_url.'?'.http_build_query($aQueryTmp).'">'.$sStart.($i+1).$sEnd.'</a>';
+			}
+			$page_html.= implode(' | ', $aPages);
+			$page_html.= '</div>';
+			$sSQLLimit = ' limit '.($current_page*$page_len).', '.$page_len;
+		}
+
+		// get list
+		$list = $wpdb->get_results('select a.*, b.post_id from '.WB_VIDEO_TABLE.' a, '.WB_VIDEO_GALLERIES_TABLE.' b where a.is_live=1 and b.is_live=1 and b.post_id = '.$post_id.' and a.gallery_id = b.id order by a.order_no desc'.$sSQLLimit);
 		
-		$aQueryTmp['wb_video_page_id'] = $i;
+		// generate main HTML
+		$html = $page_html;
+			$html.= '<div class="wb_video_container">';
+			foreach($list as $k=>$item) {
+				$html.= '<div class="wb_video_item">';
+				$html.= '<a href="#movie'.$k.'" class="wb_video_image_link wbfancybox" style="position: relative;"><img src="'.$item->image.'" width="120" class="wb_video_image_img"><b class="wb_video_icon"></b></a>';
+				$html.= '<a href="#movie'.$k.'" class="wb_video_title wbfancybox">'.$item->title.'</a>';
+				if ($item->description) {
+					$html.= '<div class="wb_video_description">'.self::getText($item->description).'</div>';
+				}
+				$html.= '</div>';
+			}
+			$html.= '</div>';
+		$html.= $page_html;
 		
-		$aPages[] = '<a href="'.$new_url.'?'.http_build_query($aQueryTmp).'">'.$sStart.($i+1).$sEnd.'</a>';
-	    }
-	    $page_html.= implode(' | ', $aPages);
-	    $page_html.= '</div>';
-	    
-	    $sSQLLimit = ' limit '.($current_page*$page_len).', '.$page_len;
+		foreach($list as $k=>$item) {
+			$html.= '
+			<div style="display: none;" id="movie'.$k.'">'.$item->code.'</div>
+			';
+		}
+		$html.= '
+			<script language="JavaScript">
+				var $ = jQuery.noConflict();
+			$(function() {
+			$(".wbfancybox").fancybox();
+			});
+			</script>
+			';
+		return $html;
 	}
-	
-	// get list
-	$list = $wpdb->get_results('select * from '.WB_VIDEO_TABLE.' where is_live=1 order by order_no '.$sSQLLimit);
-	
-	// generate main HTML
-	$html = $page_html;
-        $html.= '<div class="wb_video_container">';
-        foreach($list as $k=>$item)
-        {
-	    $html.= '<div class="wb_video_item">';
-	    $html.= '<a href="#movie'.$k.'" id="wbfancybox" class="wb_video_image_link" style="position: relative;"><img src="'.$item->image.'" width="120" class="wb_video_image_img"><b class="wb_video_icon"></b></a>';
-	    $html.= '<a href="#movie'.$k.'" id="wbfancybox" class="wb_video_title">'.$item->title.'</a>';
-	    if ($item->description)
-	    {
-		$html.= '<div class="wb_video_description">'.self::getText($item->description).'</div>';
-	    }
-	    $html.= '</div>';
-        }
-        $html.= '</div>';
-	$html.= $page_html;
-	
-	foreach($list as $k=>$item)
-	{
-	    $html.= '
-	    <div style="display: none;" id="movie'.$k.'">'.$item->code.'</div>
-	    ';
-	}
-	
-        $html.= '
-	
-        <script language="JavaScript">
-            var $ = jQuery.noConflict();
-	    $(function() {
-		$("#wbfancybox").fancybox();
-	    });
-        </script>
-        ';
-	
-	return $html;
-    }
+
     
+
     
-    public function activate()
-    {
+
+    public function activate() {
         global $wpdb;
         $sql = "DROP TABLE IF EXISTS ".WB_VIDEO_TABLE;
-	$wpdb->query($sql);
-	
-	// create tables
-	$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
-		`id` int(11) NOT NULL auto_increment,
-		`title` varchar(255) default NULL,
-		`url` varchar(255) default NULL,
-		`image` varchar(255) default NULL,
-		`code` text default NULL,
-		`description` text default NULL,
-		`is_live` int(1) default NULL,
-		`order_no` int(11) default NULL,
-		PRIMARY KEY  (`id`)
-	      )
-	';
-	$wpdb->query($sql);
+		$wpdb->query($sql);
+		$sql = "DROP TABLE IF EXISTS ".WB_VIDEO_GALLERIES_TABLE;
+		$wpdb->query($sql);
+
+		// create tables
+		$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
+			`id` int(11) NOT NULL auto_increment,
+			`title` varchar(255) default NULL,
+			`post_id` int(11) default NULL,
+			`image` varchar(255) default NULL,
+			`code` text default NULL,
+			`description` text default NULL,
+			`is_live` int(1) default NULL,
+			`order_no` int(11) default NULL,
+			PRIMARY KEY  (`id`)
+			  )
+		';
+		$wpdb->query($sql);
+		
+		$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
+			`id` int(11) NOT NULL auto_increment,
+			`title` varchar(255) default NULL,
+			`description` text,
+			`url` varchar(255) default NULL,
+			`is_live` int(1) default NULL,
+			`order_no` int(11) default NULL,
+			`gallery_id` int(11) default NULL,
+			PRIMARY KEY  (`id`)
+			  )
+		';
+		$wpdb->query($sql);
     }
+
     
-    public function deactivate()
-    {
+
+    public function deactivate() {
         global $wpdb;
         $sql = "DROP TABLE IF EXISTS ".WB_VIDEO_TABLE;
-	$wpdb->query($sql);
+		$wpdb->query($sql);
+		$sql = "DROP TABLE IF EXISTS ".WB_VIDEO_GALLERIES_TABLE;
+		$wpdb->query($sql);
     }
+
     
-    public function menu()
-    {
-        add_menu_page("Videos", "Videos", "administrator",WB_VIDEO_PAGE, array(__CLASS__,'get_list'),false);
-        add_submenu_page(WB_VIDEO_PAGE, "Options", "Options", "administrator",WB_VIDEO_OPTIONS_PAGE, array(__CLASS__,'get_options'));
+
+    public function menu() {
+        global $wpdb;
+		add_menu_page("Videos", "Videos", "administrator",WB_VIDEO_PAGE, array(__CLASS__,'get_list'),false);
+        add_submenu_page(WB_VIDEO_PAGE, "Galleries", "Galleries", "administrator",WB_VIDEO_GALLERIES_PAGE, array(__CLASS__,'get_galleries'));
+		$sql = 'select * from '.WB_VIDEO_GALLERIES_TABLE.' where is_live=1 order by order_no';
+		$list = $wpdb->get_results($sql);
+		if (count($list) > 0) {
+			foreach($list as $item) {
+				add_submenu_page(WB_VIDEO_PAGE, $item->title, $item->title, "administrator", 'gallery_'.$item->id, array(__CLASS__,'getVideoByGallery'));
+			}
+		}
+		add_submenu_page(WB_VIDEO_PAGE, "Options", "Options", "administrator",WB_VIDEO_OPTIONS_PAGE, array(__CLASS__,'get_options'));
     }
+
     
+
     public function get_list()
     {
         if (isset($_GET['edit']))
@@ -243,67 +267,57 @@ class workbox_YV_video
         }
     }
     
-    private function __getListPage()
-    {
-        global $wpdb;
-        
-        $list = $wpdb->get_results('select * from '.WB_VIDEO_TABLE.' order by order_no');
-        
+    private function __getListPage() {
+        global $wpdb, $posts;
+        $list = $wpdb->get_results('select a.*, b.title as gallery_title, b.post_id, b.id as bid from '.WB_VIDEO_TABLE.' a left join '.WB_VIDEO_GALLERIES_TABLE.' b on a.gallery_id = b.id order by a.id desc');
         $html = '';
-        
         $html.= '
         <div class="wrap">
             <br>
             <h2>List of videos <a href="admin.php?page='.WB_VIDEO_PAGE.'&edit" class="add-new-h2">Add New</a></h2>
             ';
-            
-        if (sizeof($list)>0)
-        {
-	    $current_url = parse_url($_SERVER['REQUEST_URI']);
-            $html.= '
-	    <table class="widefat" cellspacing="0" style="width:100%;">
-		<thead>
-		    <tr>
-			<th class="manage-column" width="50">&nbsp;</th>
-			<th class="manage-column">Video Title</th>
-			<th class="manage-column" width="120">Video Thumbnail</th>
-			<th class="manage-column" width="100">Sort</th>
-		    </tr>
-		</thead>
-		<tbody>';
-		
-                foreach($list as $item)
-                {
-		    $tr_style = 'style="background-color: #'.($item->is_live?"ccffcc":"ffcccc").'"';
-		    $color_border = !$item->is_live?'#fff':'#ccc';
-                    
-                    $html.='<tr class="iedit" '.$tr_style.'>';
-                    
-		    $html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&id='.$item->id.'">edit</a></td>';
-		    $html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.$item->title.'</td>';
-		    $html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'"><img src="'.$item->image.'" width="120"></td>';
-		    $html.= '<td valign="middle" align="center"><a href="admin.php?page='.WB_VIDEO_PAGE.'&move=up&id='.$item->id.'">Up</a> / <a href="admin.php?page='.WB_VIDEO_PAGE.'&move=down&id='.$item->id.'">Down</a></td>';
-                    
-                    $html.='</tr>';
-                }
-	    
-	    $html.='</tbody></table>';
+        if (count($list)>0) {
+			$current_url = parse_url($_SERVER['REQUEST_URI']);
+			$html.= '
+			<table class="widefat" cellspacing="0" style="width:100%;">
+			<thead>
+				<tr>
+				<th class="manage-column" width="50">&nbsp;</th>
+				<th class="manage-column">Video Title</th>
+				<th class="manage-column">Video Gallery</th>
+				<th class="manage-column" width="120">Video Thumbnail</th>
+				'.//<th class="manage-column" width="100">Sort</th>
+				'</tr>
+			</thead>
+			<tbody>';
+			foreach($list as $item) {
+				$tr_style = 'style="background-color: #'.($item->is_live?"ccffcc":"ffcccc").'"';
+				$color_border = !$item->is_live?'#fff':'#ccc';
+				$html.='<tr class="iedit" '.$tr_style.'>';
+				$html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&id='.$item->id.'">edit</a></td>';
+				$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.$item->title.'</td>';
+				$titleGallery = '';
+				if (get_the_title($item->post_id) == '') {
+					$titleGallery = $item->gallery_title.' (not attached)';
+				}
+				else {
+					$titleGallery = '<a href="admin.php?page=gallery_'.$item->bid.'">'.$item->gallery_title.'('.get_the_title($item->post_id).')</a>';
+				}
+				$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.$titleGallery.'</td>';
+				$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'"><img src="'.$item->image.'" width="120"></td>';
+				//$html.= '<td valign="middle" align="center"><a href="admin.php?page='.WB_VIDEO_PAGE.'&move=down&id='.$item->id.'">Up</a> / <a href="admin.php?page='.WB_VIDEO_PAGE.'&move=up&id='.$item->id.'">Down</a></td>';
+				$html.='</tr>';
+			}
+			$html.='</tbody></table>';
         }
-        else
-        {
+        else {
             $html.= '<br><br>Currently there are no records';
         }
-        
-        $html.= '
-        </div>
-        ';
-        
-        
+        $html.= '</div>';
         echo $html;
     }
     
-    private function __getEditPage()
-    {
+    private function __getEditPage() {
         global $wpdb, $wb_form_info, $wp_version;
         
         $item_id = isset($_GET['id'])?intval($_GET['id']):0;
@@ -313,36 +327,32 @@ class workbox_YV_video
         
         $html.= '
         <div class="wrap"><form action="" method="post" name="edit_form" enctype="multipart/form-data">
-            <h2>'.($item_id?'Edit Record: '.$wb_form_info->title:'Add New Record').'</h2>
-            <script language="JavaScript">
-                function doCancel()
-		{
-		    window.location.href="admin.php?page='.WB_VIDEO_PAGE.'";    
-		}
-		
-		function doDelete()
-		{
-		    oForm = document.forms.edit_form;
-		    
-		    if (confirm("Do you really want to delete this record?"))
-		    {
-			oForm.action_name.value = "delete";
-			oForm.action = "";
-			oForm.target = "_self";
-			oForm.submit();
-		    }
-		}
-		
-		function doSave()
-		{
-		    oForm = document.forms.edit_form;
-		    
-		    oForm.action = "";
-		    oForm.target = "_self";
-		    oForm.action_name.value = "save";
-		    oForm.submit();
-		}
-            </script>
+        <h2>'.($item_id?'Edit Record: '.$wb_form_info->title:'Add New Record').'</h2>
+        <script language="JavaScript">
+			function doCancel() {
+				window.location.href="admin.php?page='.WB_VIDEO_PAGE.'";    
+			}
+			function doDelete() {
+				oForm = document.forms.edit_form;
+				
+				if (confirm("Do you really want to delete this record?"))
+				{
+				oForm.action_name.value = "delete";
+				oForm.action = "";
+				oForm.target = "_self";
+				oForm.submit();
+				}
+			}
+			
+			function doSave() {
+				oForm = document.forms.edit_form;
+				
+				oForm.action = "";
+				oForm.target = "_self";
+				oForm.action_name.value = "save";
+				oForm.submit();
+			}
+        </script>
             ';
             $html.= '
             <div class="metabox-holder has-right-sidebar" id="poststuff">
@@ -351,8 +361,7 @@ class workbox_YV_video
 			<h3 class="hndle"><span>Publish</span></h3>
 			    <div id="submitpost" class="submitbox">
                                 <div id="major-publishing-actions">';
-				if ($item_id>0)
-				{
+				if ($item_id>0) {
 				    $html.='<div id="delete-action">
 					<a href="JavaScript:" onclick="doDelete()" class="submitdelete deletion">Delete</a>
 				    </div>';
@@ -372,34 +381,259 @@ class workbox_YV_video
 				<input type="hidden" name="id" value="'.intval($item_id).'">
 				<input type="hidden" name="action_name" value="">
 			    ';
-	
-	
 	///////////////////////////////////////////
+		$gallery_id = self::_get('gallery_id',$wb_form_info);
         $html.= '
                 <table border="0" width="100%">
                     <tr>
                         <td width="30%" align="right"><b>Video Name</td>
                         <td width="70%">
-			    <input type="text" name="title" value="'.self::_get('title',$wb_form_info).'" style="width:100%">    
-			</td>
+							<input type="text" name="title" value="'.self::_get('title',$wb_form_info).'" style="width:100%">    
+						</td>
                     </tr>
-		    <tr>
+					<tr>
+                        <td width="30%" align="right"><b>Video Gallery</td>
+						<td width="70%">
+						<select name="gallery_id" style="width:100%;">
+                            <option value="0">not attached to any gallery</option>
+                        ';
+						$sql = 'select * from '.WB_VIDEO_GALLERIES_TABLE.' order by order_no';
+						$rows = $wpdb->get_results($sql);
+						if (count($rows) > 0) {
+							foreach($rows as $item) {
+								$selected = '';
+								if (isset($_GET['gallery'])) {
+									if ($_GET['gallery'] == $item->id) {
+										$selected = 'selected';
+									}
+								}
+								else 
+								if ($item->id == $gallery_id) {
+									$selected = 'selected';
+								}
+								if ($item->is_live == 1) {
+									$html.='<option value="'.$item->id.'" '.$selected.'>'.$item->title.'</option>';
+								}
+								else {
+									$html.='<option value="'.$item->id.'" '.$selected.'>'.$item->title.' (Gallery is not active)</option>';
+								}
+							}
+						}
+                        $html.='
+                        </select>
+						</td>
+                    </tr>
+					<tr>
                         <td width="30%" align="right"><b>Video URL</td>
                         <td width="70%">
-			    <input type="text" name="url" value="'.self::_get('url',$wb_form_info).'" style="width:100%">    
-			</td>
+							<input type="text" name="url" value="'.self::_get('url',$wb_form_info).'" style="width:100%">    
+						</td>
                     </tr>
-		    <tr>
+					<tr>
                         <td width="30%" align="right" valign="top"><br><br><b>Video Description</td>
-			<td width="70%">
-			';
+						<td width="70%">
+						';
+						if ( version_compare( $wp_version, '3.3', '>=' ) ) {
+							ob_start();
+							wp_editor(self::_get('description',$wb_form_info),'description', array('textarea_name'=>'description'));
+							$html.= '<div id="poststuff" >'.ob_get_clean().'</div>';
+						}
+						else
+						{
+							ob_start();
+							the_editor(self::_get('description',$wb_form_info),'description');
+							$str = '<div id="poststuff" >'.ob_get_clean().'</div>';
+							$html.= str_replace('<textarea','<textarea style="width:100%" ', $str);
+						}
+						
+						$html.= '
+						</td>
+                    </tr>
+					<tr>
+                        <td width="30%" align="right"><b>Show video?</td>
+                        <td width="70%">
+							<input type="checkbox" name="is_live" value="1" '.(self::_get('is_live',$wb_form_info,1) == 1?'checked':'').'>    
+						</td>
+                    </tr>
+                </table>';
+		$html.= '
+			</div>
+		    </div>
+		    <br class="clear">
+			</div></form>
+			</div>';
+        $html.= '</div>';
+        echo $html;
+    }
+	
+	public function getVideoByGallery() {
+		global $wpdb, $posts;
+		if (isset($_GET['page'])) {
+			$a = explode('_',$_GET['page']);
+			if (count($a) > 1) {
+				$gallery_id = $a[1];
+			}
+			else {
+				$gallery_id = 0;
+			}
+		}
+		else {
+			$gallery_id = 0;
+		}
+		$list = $wpdb->get_results('select a.*, b.title as gallery_title from '.WB_VIDEO_TABLE.' a, '.WB_VIDEO_GALLERIES_TABLE.' b where a.gallery_id = b.id and gallery_id = '.$gallery_id.' order by a.order_no desc');
+        $html = '';
+		$rows = $wpdb->get_results('select * from '.WB_VIDEO_GALLERIES_TABLE.' where id='.$gallery_id.' and is_live=1');
+        if (count($rows) > 0) {
+			$html.= '
+			<div class="wrap">
+            <br>
+			<h2>List of videos in '.$rows[0]->title.'<a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&gallery='.$gallery_id.'" class="add-new-h2">Add New</a></h2>';
+		}
+		else {
+			$html.= '
+			<div class="wrap">
+            <br>
+			<h2>Error</h2>';
+		}
+            //<h2>List of videos <a href="admin.php?page='.WB_VIDEO_PAGE.'&edit" class="add-new-h2">Add New</a></h2>
+        if (count($list)>0) {
+			$current_url = parse_url($_SERVER['REQUEST_URI']);
+			$html.= '
+				<table class="widefat" cellspacing="0" style="width:100%;">
+				<thead>
+					<tr>
+					<th class="manage-column" width="50">&nbsp;</th>
+					<th class="manage-column">Video Title</th>
+					<th class="manage-column" width="120">Video Thumbnail</th>
+					<th class="manage-column" width="100">Sort</th>
+					</tr>
+				</thead>
+				<tbody>';
+			foreach($list as $item) {
+				$tr_style = 'style="background-color: #'.($item->is_live?"ccffcc":"ffcccc").'"';
+				$color_border = !$item->is_live?'#fff':'#ccc';
+				$html.='<tr class="iedit" '.$tr_style.'>'; 
+				$html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&id='.$item->id.'">edit</a></td>';
+				$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.$item->title.'</td>';
+				$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'"><img src="'.$item->image.'" width="120"></td>';
+				$html.= '<td valign="middle" align="center"><a href="admin.php?page=gallery_'.$gallery_id.'&move=down&id='.$item->id.'">Up</a> / <a href="admin.php?page=gallery_'.$gallery_id.'&move=up&id='.$item->id.'">Down</a></td>';
+				$html.='</tr>';
+			}
+			$html.='</tbody></table>';
+        }
+        else {
+            $html.= '<br><br>Currently there are no records';
+        }
+        $html.= '</div>';
+        echo $html;
+	}
+	
+    public function get_galleries() {
+		global $wpdb, $posts;
+		$html = '';
+		if (isset($_GET['edit'])) {
+            global $wpdb, $wb_form_info, $wp_version;
+			$item_id = isset($_GET['id'])?intval($_GET['id']):0;
+			$html.= '
+			<div class="wrap"><form action="" method="post" name="edit_form" enctype="multipart/form-data">
+            <h2>'.($item_id?'Edit Record: '.$wb_form_info->title:'Add New Record').'</h2>
+            <script language="JavaScript">
+                function doCancel() {
+					window.location.href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'";    
+				}
+				function doDelete() {
+					oForm = document.forms.edit_form;
+					if (confirm("Do you really want to delete this record?")) {
+						oForm.action_name.value = "delete";
+						oForm.action = "";
+						oForm.target = "_self";
+						oForm.submit();
+					}
+				}
+				function doSave() {
+					oForm = document.forms.edit_form;
+					oForm.action = "";
+					oForm.target = "_self";
+					oForm.action_name.value = "save";
+					oForm.submit();
+				}
+            </script>
+            ';
+            $html.= '
+            <div class="metabox-holder has-right-sidebar" id="poststuff">
+			<div class="inner-sidebar" style="display:block">
+		    <div class="postbox">
+			<h3 class="hndle"><span>Publish</span></h3>
+			    <div id="submitpost" class="submitbox">
+                    <div id="major-publishing-actions">';
+				if ($item_id>0) {
+				    $html.='<div id="delete-action">
+					<a href="JavaScript:" onclick="doDelete()" class="submitdelete deletion">Delete</a>
+				    </div>';
+				}  
+				$html.='
+                    <div id="publishing-action">
+					<a href="JavaScript:" onclick="doCancel();">back to list</a>&nbsp;&nbsp;&nbsp;
+					<input type="button" onclick="doSave()" value="Publish" class="button-primary" >
+				    </div>
+				    <div class="clear"></div>
+					</div>
+			    </div>
+			</div>
+		    </div>
+		    <div id="post-body">
+				<div id="post-body-content">
+				<input type="hidden" name="id" value="'.intval($item_id).'">
+				<input type="hidden" name="action_name" value="">
+			    ';
+			$pages = get_pages();
+			$html.= '
+                <table border="0" width="100%">
+                    <tr>
+                        <td width="30%" align="right"><b>Gallery Name: </td>
+                        <td width="70%">
+							<input type="text" name="title" value="'.self::_get('title',$wb_form_info).'" style="width:100%">    
+						</td>
+                   </tr>
+					<tr>
+                        <td width="30%" align="right"><b>Gallery Page: </td>
+                        <td width="70%">
+						<select name="post_id" style="width:350px;">
+                            <option value="0">not attached to any page</option>
+                        ';
+						$flag = false;
+						if ($item_id != 0) {
+							$sql = 'select * from '.WB_VIDEO_GALLERIES_TABLE.' where id = '.$item_id.' and is_live=1';
+							$rows = $wpdb->get_results($sql);
+							if (count($rows) > 0) {
+								$flag = true;
+							}
+						}
+                        foreach($pages as $item) {
+							$selected = '';
+							if ($flag == true) {
+								foreach($rows as $row) {
+									if ($row->post_id == $item->ID) {
+										$selected = 'selected';
+									}
+								}
+							}
+                            $html.='<option value="'.$item->ID.'" '.$selected.'>'.$item->post_title.'</option>';
+                        }
+                        $html.='
+                        </select>
+						</td>
+                    </tr>
+					<tr>
+                        <td width="30%" align="right" valign="top"><br><br><b>Gallery Description: </td>
+						<td width="70%">
+					';
 			if ( version_compare( $wp_version, '3.3', '>=' ) ) {
 			    ob_start();
 			    wp_editor(self::_get('description',$wb_form_info),'description', array('textarea_name'=>'description'));
 			    $html.= '<div id="poststuff" >'.ob_get_clean().'</div>';
 			}
-			else
-			{
+			else {
 			    ob_start();
 			    the_editor(self::_get('description',$wb_form_info),'description');
 			    $str = '<div id="poststuff" >'.ob_get_clean().'</div>';
@@ -407,37 +641,65 @@ class workbox_YV_video
 			}
 			
 			$html.= '
-			</td>
-                    </tr>
-		    <tr>
-                        <td width="30%" align="right"><b>Show video?</td>
+						</td>
+					</tr>
+					<tr>
+                        <td width="30%" align="right"><b>Is Live?</td>
                         <td width="70%">
-			    <input type="checkbox" name="is_live" value="1" '.(self::_get('is_live',$wb_form_info,1) == 1?'checked':'').'>    
-			</td>
+							<input type="checkbox" name="is_live" value="1" '.(self::_get('is_live',$wb_form_info,1) == 1?'checked':'').'>    
+						</td>
                     </tr>
                 </table>
-        
-        ';
-	
-	
-	
-	$html.= '
-			    
-			</div>
+				';
+			$html.= '
+				</div>
 		    </div>
 		    <br class="clear">
-		</div></form>
-	    </div>';
-            
-            
-        $html.= '</div>
-        ';
-        
-        echo $html;
-    }
-    
-    public function get_options()
-    {
+			</div></form>
+			</div>';
+			$html.= '</div>';   
+        }
+        else {
+			$list = $wpdb->get_results('select * from '.WB_VIDEO_GALLERIES_TABLE.' order by order_no');
+			$html.= '
+			<div class="wrap">
+				<br>
+				<h2>List of videos <a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&edit" class="add-new-h2">Add New</a></h2>
+				';	
+			if (count($list)>0) {
+				$current_url = parse_url($_SERVER['REQUEST_URI']);
+				$html.= '
+				<table class="widefat" cellspacing="0" style="width:100%;">
+				<thead>
+					<tr>
+						<th class="manage-column" width="50">&nbsp;</th>
+						<th class="manage-column">Gallery Title</th>
+						<th class="manage-column" width="120">Gallery Page</th>
+						<th class="manage-column" width="100">Sort</th>
+					</tr>
+				</thead>
+				<tbody>';
+				foreach($list as $item) {
+					$tr_style = 'style="background-color: #'.($item->is_live?"ccffcc":"ffcccc").'"';
+					$color_border = !$item->is_live?'#fff':'#ccc';
+					$html.='<tr class="iedit" '.$tr_style.'>';
+					$html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&edit&id='.$item->id.'">edit</a></td>';
+					$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.$item->title.'</td>';
+					$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.get_the_title($item->post_id).'</td>';
+					$html.= '<td valign="middle" align="center"><a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&move=up&id='.$item->id.'">Up</a> / <a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&move=down&id='.$item->id.'">Down</a></td>';
+					$html.='</tr>';
+				}
+				$html.='</tbody></table>';
+			}
+			else {
+				$html.= '<br><br>Currently there are no records';
+			}
+			$html.= '</div>';
+        }
+		echo $html;
+	}
+
+    public function get_options() {
         $_wb_video_VY_fw = get_option('wb_video_VY_fw');
         $pages = get_pages();
         $_wb_video_VY_page_id = intval(get_option('wb_video_VY_page_id'));
@@ -499,7 +761,7 @@ class workbox_YV_video
             </table>
             
             <table border="0" id="wb_video_VY_fw1" style="display: none;">
-                <tr>
+                './*<tr>
                     <td width="200" align="right"><b>Select a Page:</b></td>
                     <td>
                         <select name="wb_video_VY_page_id" style="width:350px;">
@@ -512,8 +774,8 @@ class workbox_YV_video
                         $html.='
                         </select>
                     </td>
-                </tr>
-            </table>
+                </tr>*/
+            '</table>
             
             <table border="0" id="wb_video_VY_fw2" style="display: none;">
                 <tr>
@@ -632,234 +894,307 @@ class workbox_YV_video
             wb_setVisible('.$_wb_video_VY_fw.');
         </script>
         ';
-
-	
         echo $html;
     }
 
-    public function init()
-    {
+    public function init() {
         global $wpdb;
-        
-        if (isset($_POST['_workbox_edit_video_VY_options_attempt']))
-        {
+        if (isset($_POST['_workbox_edit_video_VY_options_attempt'])) {
             // edit options ettempt
-            if (isset($_POST['wb_video_VY_fw']))
-            {
-		update_option('wb_video_VY_fw',$_POST['wb_video_VY_fw']);
+            if (isset($_POST['wb_video_VY_fw'])) {
+				update_option('wb_video_VY_fw',$_POST['wb_video_VY_fw']);
             }
             
-            if (isset($_POST['wb_video_VY_page_id']))
-            {
-		update_option('wb_video_VY_page_id',intval($_POST['wb_video_VY_page_id']));
+            if (isset($_POST['wb_video_VY_page_id'])) {
+				update_option('wb_video_VY_page_id',intval($_POST['wb_video_VY_page_id']));
             }
             
-            if (isset($_POST['wb_video_VY_page_len']))
-            {
-		update_option('wb_video_VY_page_len',intval($_POST['wb_video_VY_page_len']));
+            if (isset($_POST['wb_video_VY_page_len'])) {
+				update_option('wb_video_VY_page_len',intval($_POST['wb_video_VY_page_len']));
             }
 	    //////////////////////////////////////////////////////////////////////////////////////////
-	    if (isset($_POST['class_wb_video_pager']))
-            {
-		update_option('class_wb_video_pager',($_POST['class_wb_video_pager']));
+			if (isset($_POST['class_wb_video_pager'])) {
+				update_option('class_wb_video_pager',($_POST['class_wb_video_pager']));
             }
 	    
-	    if (isset($_POST['class_wb_video_pager_a']))
-            {
-		update_option('class_wb_video_pager_a',($_POST['class_wb_video_pager_a']));
+			if (isset($_POST['class_wb_video_pager_a'])) {
+				update_option('class_wb_video_pager_a',($_POST['class_wb_video_pager_a']));
             }
 	    
-	    if (isset($_POST['class_wb_video_container']))
-            {
-		update_option('class_wb_video_container',($_POST['class_wb_video_container']));
+			if (isset($_POST['class_wb_video_container'])) {
+				update_option('class_wb_video_container',($_POST['class_wb_video_container']));
             }
 	    
-	    if (isset($_POST['class_wb_video_item']))
-            {
-		update_option('class_wb_video_item',($_POST['class_wb_video_item']));
+			if (isset($_POST['class_wb_video_item'])) {
+				update_option('class_wb_video_item',($_POST['class_wb_video_item']));
             }
 	    
-	    if (isset($_POST['class_wb_video_image_link']))
-            {
-		update_option('class_wb_video_image_link',($_POST['class_wb_video_image_link']));
+			if (isset($_POST['class_wb_video_image_link'])) {
+				update_option('class_wb_video_image_link',($_POST['class_wb_video_image_link']));
             }
 	    
-	    if (isset($_POST['class_wb_video_image_img']))
-            {
-		update_option('class_wb_video_image_img',($_POST['class_wb_video_image_img']));
+			if (isset($_POST['class_wb_video_image_img'])) {
+				update_option('class_wb_video_image_img',($_POST['class_wb_video_image_img']));
             }
 	    
-	    if (isset($_POST['class_wb_video_title']))
-            {
-		update_option('class_wb_video_title',($_POST['class_wb_video_title']));
+			if (isset($_POST['class_wb_video_title'])) {
+				update_option('class_wb_video_title',($_POST['class_wb_video_title']));
             }
 	    
-	    if (isset($_POST['class_wb_video_description']))
-            {
-		update_option('class_wb_video_description',($_POST['class_wb_video_description']));
+			if (isset($_POST['class_wb_video_description'])) {
+				update_option('class_wb_video_description',($_POST['class_wb_video_description']));
             }
-	    
-	    
-	    
             wp_redirect('admin.php?page='.WB_VIDEO_OPTIONS_PAGE.'&updated');
             die();
         }
         
-	if (isset($_GET['move']) && isset($_GET['page']) && $_GET['page'] == WB_VIDEO_PAGE)
-	{
-	    // move items
-            $dir = $_GET["move"] == 'up'?'up':'down';
-            $item_id = intval($_GET['id']);
-            
-	    $order_no = $wpdb->get_var('select order_no from '.WB_VIDEO_TABLE.' where id='.$item_id);
-	    
-            // get swapped item data
-            $row = $wpdb->get_row("select id, order_no from ".WB_VIDEO_TABLE." where order_no".($dir=="up"?"<":">").$order_no." order by order_no ".($dir=="up"?"desc":"asc")." limit 1");
-            if (sizeof($row) == 1){
-                $wpdb->update(WB_VIDEO_TABLE, array("order_no"=>$row->order_no),array("id"=>$item_id));
-                $wpdb->update(WB_VIDEO_TABLE, array("order_no"=>$order_no),array("id"=>$row->id));
-            }
-	    
-	    wp_redirect('admin.php?page='.WB_VIDEO_PAGE);
-            die();
-	}
+		if (isset($_GET['move']) && isset($_GET['page']) && $_GET['page'] == WB_VIDEO_GALLERIES_PAGE) {
+			// move items
+				$dir = $_GET["move"] == 'up'?'up':'down';
+				$item_id = intval($_GET['id']);
+				
+			$order_no = $wpdb->get_var('select order_no from '.WB_VIDEO_GALLERIES_TABLE.' where id='.$item_id);
+			
+				// get swapped item data
+				$row = $wpdb->get_row("select id, order_no from ".WB_VIDEO_GALLERIES_TABLE." where order_no".($dir=="up"?"<":">").$order_no." order by order_no ".($dir=="up"?"desc":"asc")." limit 1");
+				if (count($row) == 1){
+					$wpdb->update(WB_VIDEO_GALLERIES_TABLE, array("order_no"=>$row->order_no),array("id"=>$item_id));
+					$wpdb->update(WB_VIDEO_GALLERIES_TABLE, array("order_no"=>$order_no),array("id"=>$row->id));
+				}
+			
+			wp_redirect('admin.php?page='.WB_VIDEO_GALLERIES_PAGE);
+				die();
+		}
+		$galleryPage = "";
+		$galleryId = 0;
+		if (isset($_GET['page'])) {
+			$galleryGet = explode("_",$_GET['page']);
+			if (count($galleryGet) > 1) {
+				$galleryPage = $galleryGet[0];
+				$galleryId = $galleryGet[1];
+			}
+		}
+		if (isset($_GET['move']) && $galleryPage == "gallery") {
+			// move items
+			$dir = $_GET["move"] == 'up'?'up':'down';
+			$item_id = intval($_GET['id']);  
+			$order_no = $wpdb->get_var('select order_no from '.WB_VIDEO_TABLE.' where gallery_id='.$galleryId.' and id='.$item_id);
+			// get swapped item data
+			$row = $wpdb->get_row("select id, order_no from ".WB_VIDEO_TABLE." where gallery_id=".$galleryId." and order_no".($dir=="up"?"<":">").$order_no." order by order_no ".($dir=="up"?"desc":"asc")." limit 1");
+			if (count($row) == 1){
+				$wpdb->update(WB_VIDEO_TABLE, array("order_no"=>$row->order_no),array("id"=>$item_id));
+				$wpdb->update(WB_VIDEO_TABLE, array("order_no"=>$order_no),array("id"=>$row->id));
+			}
+			wp_redirect('admin.php?page='.$_GET['page']);
+			die();
+		}
 	
-        if (isset($_GET['edit']) && isset($_GET['page']) && $_GET['page'] == WB_VIDEO_PAGE)
-        {
+        if (isset($_GET['edit']) && isset($_GET['page']) && $_GET['page'] == WB_VIDEO_PAGE) {
             $GLOBALS['wb_form_info'] = array();
-	    $item_id = 0;
-            if (isset($_GET['id']))
-            {
+			$item_id = 0;
+            if (isset($_GET['id'])) {
                 $row = $wpdb->get_row('select * from '.WB_VIDEO_TABLE.' where id='.intval($_GET['id']));
-                if ($row)
-                {
+                if ($row) {
                     $GLOBALS['wb_form_info'] = $row;
-		    $item_id = intval($_GET['id']);
+					$item_id = intval($_GET['id']);
                 }
-                else
-                {
+                else {
                     wp_redirect('admin.php?page='.WB_VIDEO_PAGE);
                     die();
                 }
             }
-            
-            if (!empty($_POST))
-            {
-                if (isset($_POST['action_name']) && $_POST['action_name'] == 'save')
-		{
-		    $saveArray = array(
-			'title'=>stripcslashes(self::_getPost("title")),
-			'image'=>'',
-			'url'=>stripcslashes(self::_getPost("url")),
-			'description'=>stripcslashes(self::_getPost("description")),
-			'is_live'=>intval(self::_getPost("is_live")),
-		    );
-		    
-		    
-		    // now check the URL
-		    $pos = strpos($saveArray['url'], 'http://');
-		    if( $pos === false ) {
-			    $saveArray['url'] = 'http://' . $saveArray['url'];
-		    }
-		    
-		    $media_source = explode('/', $saveArray['url']);
-		    $media_source = explode('.', $media_source[2]);
-		    
-		    if ((($media_source[0] == 'www') && ($media_source[1] == 'vimeo')) || ($media_source[0] == 'vimeo')) {
-			// vimeo
-			
-			$vimeo_key = explode('.com/', $saveArray['url']);
-			$vimeo_key = explode('?', $vimeo_key[1]);
-			// get info
-			$data = @json_decode(file_get_contents('http://vimeo.com/api/v2/video/'.$vimeo_key[0].'.json'));
-			
-			$thumb = '';
-			$width = 0;
-			$height = 0;
-			if (isset($data[0]->thumbnail_small))
-			{
-			    $thumb = $data[0]->thumbnail_small;
-			    $width = intval($data[0]->width);
-			    $height = intval($data[0]->height);
-			}    
-			$saveArray['image'] = $thumb;
-			$saveArray['code'] = '<iframe src="http://player.vimeo.com/video/'.$vimeo_key[0].'?title=0&amp;byline=0&amp;portrait=0&amp;color=6fde9f" width="'.$width.'" height="'.$height.'" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
-		    }
-		    else if ((($media_source[0] == 'www') && ($media_source[1] == 'youtube')) || ($media_source[0] == 'youtu') )
-		    {
-			if(strpos($saveArray['url'], "&v") || strpos($saveArray['url'], "?v")) {
-			    $youtube_key = explode('/', $saveArray['url']);
-			    $youtube_key = explode('v=', $youtube_key[3]);
-			    $youtube_key = explode('&', $youtube_key[1]);
-			} else {
-			    $youtube_key = explode('?', $saveArray['url']);
-			    $youtube_key[0] = substr($youtube_key[0], -11);
-			}
-			    
-			$thumb = 'http://i.ytimg.com/vi/'.$youtube_key[0].'/default.jpg';
-			$width = 560;
-			$height = 349;
-			
-			$saveArray['image'] = $thumb;
-			$saveArray['code'] = '<iframe width="'.$width.'" height="'.$height.'" src="http://www.youtube.com/embed/'.$youtube_key[0].'?rel=0" frameborder="0" allowfullscreen></iframe>';
-		    } 
-		    
-		    if ($item_id == 0)
-		    {
-			$new_order_no = intval($wpdb->get_var('select max(order_no)+1 as pnum from '.WB_VIDEO_TABLE));
-			$saveArray['order_no'] = $new_order_no;
-			$wpdb->insert(WB_VIDEO_TABLE,$saveArray);
-			$item_id = $wpdb->insert_id;
-		    }
-		    else
-		    {
-			$wpdb->update(WB_VIDEO_TABLE,$saveArray,array("id"=>$item_id));
-		    }
-		    
-		    wp_redirect('admin.php?page='.WB_VIDEO_PAGE);
+            if (!empty($_POST)) {
+				if (isset($_POST['action_name']) && $_POST['action_name'] == 'save') {
+					$saveArray = array(
+					'title'=>stripcslashes(self::_getPost("title")),
+					'image'=>'',
+					'url'=>stripcslashes(self::_getPost("url")),
+					'gallery_id'=>stripcslashes(self::_getPost("gallery_id")),
+					'description'=>stripcslashes(self::_getPost("description")),
+					'is_live'=>intval(self::_getPost("is_live")),
+					);
+					
+					
+					// now check the URL
+					$pos = strpos($saveArray['url'], 'http://');
+					if( $pos === false ) {
+						$saveArray['url'] = 'http://' . $saveArray['url'];
+					}
+					
+					$media_source = explode('/', $saveArray['url']);
+					$media_source = explode('.', $media_source[2]);
+					
+					if ((($media_source[0] == 'www') && ($media_source[1] == 'vimeo')) || ($media_source[0] == 'vimeo')) {
+					// vimeo
+					
+					$vimeo_key = explode('.com/', $saveArray['url']);
+					$vimeo_key = explode('?', $vimeo_key[1]);
+					// get info
+					$data = @json_decode(file_get_contents('http://vimeo.com/api/v2/video/'.$vimeo_key[0].'.json'));
+					
+					$thumb = '';
+					$width = 0;
+					$height = 0;
+					if (isset($data[0]->thumbnail_small))
+					{
+						$thumb = $data[0]->thumbnail_small;
+						$width = intval($data[0]->width);
+						$height = intval($data[0]->height);
+					}    
+					$saveArray['image'] = $thumb;
+					$saveArray['code'] = '<iframe src="http://player.vimeo.com/video/'.$vimeo_key[0].'?title=0&amp;byline=0&amp;portrait=0&amp;color=6fde9f" width="'.$width.'" height="'.$height.'" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
+					}
+					else if ((($media_source[0] == 'www') && ($media_source[1] == 'youtube')) || ($media_source[0] == 'youtu') )
+					{
+						if(strpos($saveArray['url'], "&v") || strpos($saveArray['url'], "?v")) {
+							$youtube_key = explode('/', $saveArray['url']);
+							$youtube_key = explode('v=', $youtube_key[3]);
+							$youtube_key = explode('&', $youtube_key[1]);
+						} else {
+							$youtube_key = explode('?', $saveArray['url']);
+							$youtube_key[0] = substr($youtube_key[0], -11);
+						}
+							
+						$thumb = 'http://i.ytimg.com/vi/'.$youtube_key[0].'/default.jpg';
+						$width = 560;
+						$height = 349;
+						
+						$saveArray['image'] = $thumb;
+						$saveArray['code'] = '<iframe width="'.$width.'" height="'.$height.'" src="http://www.youtube.com/embed/'.$youtube_key[0].'?rel=0" frameborder="0" allowfullscreen></iframe>';
+					}
+					
+					if ($item_id == 0)
+					{
+					$new_order_no = intval($wpdb->get_var('select max(order_no)+1 as pnum from '.WB_VIDEO_TABLE.' where gallery_id = '.$saveArray['gallery_id']));
+					$saveArray['order_no'] = $new_order_no;
+					$wpdb->insert(WB_VIDEO_TABLE,$saveArray);
+					$item_id = $wpdb->insert_id;
+					}
+					else
+					{
+					$wpdb->update(WB_VIDEO_TABLE,$saveArray,array("id"=>$item_id));
+					}
+					
+					wp_redirect('admin.php?page='.WB_VIDEO_PAGE);
                     die();
-		}
+				}
 		
-		if (isset($_POST['action_name']) && $_POST['action_name'] == 'delete')
-		{
-		    if ($item_id>0)
-		    {
-			$wpdb->query("DELETE FROM ".WB_VIDEO_TABLE." WHERE id=".$item_id);
-		    }
-		    
-		    wp_redirect('admin.php?page='.WB_VIDEO_PAGE);
-                    die();
-		}
+				if (isset($_POST['action_name']) && $_POST['action_name'] == 'delete') {
+					if ($item_id>0) {
+						$wpdb->query("DELETE FROM ".WB_VIDEO_TABLE." WHERE id=".$item_id);
+					}
+					wp_redirect('admin.php?page='.WB_VIDEO_PAGE);
+					die();
+				}
             }
+        }	
+			//for galleries
+		if (isset($_GET['edit']) && isset($_GET['page']) && $_GET['page'] == WB_VIDEO_GALLERIES_PAGE) {
+            $GLOBALS['wb_form_info'] = array();
+			$item_id = 0;
+            if (isset($_GET['id'])) {
+                $row = $wpdb->get_row('select * from '.WB_VIDEO_GALLERIES_TABLE.' where id='.intval($_GET['id']));
+                if ($row) {
+					$GLOBALS['wb_form_info'] = $row;
+					$item_id = intval($_GET['id']);
+                }
+                else {
+                    wp_redirect('admin.php?page='.WB_VIDEO_GALLERIES_PAGE);
+                    die();
+                }
+            }
+            if (!empty($_POST)) {
+                if (isset($_POST['action_name']) && $_POST['action_name'] == 'save') {
+					$saveArray = array(
+						'title'=>stripcslashes(self::_getPost("title")),
+						'post_id'=>stripcslashes(self::_getPost("post_id")),
+						'description'=>stripcslashes(self::_getPost("description")),
+						'is_live'=>intval(self::_getPost("is_live")),
+					);
+					// now check the URL
+					/*$pos = strpos($saveArray['url'], 'http://');
+					if( $pos === false ) {
+						$saveArray['url'] = 'http://' . $saveArray['url'];
+					}
+					$media_source = explode('/', $saveArray['url']);
+					$media_source = explode('.', $media_source[2]);
+					if ((($media_source[0] == 'www') && ($media_source[1] == 'vimeo')) || ($media_source[0] == 'vimeo')) {
+						// vimeo
+						$vimeo_key = explode('.com/', $saveArray['url']);
+						$vimeo_key = explode('?', $vimeo_key[1]);
+						// get info
+						$data = @json_decode(file_get_contents('http://vimeo.com/api/v2/video/'.$vimeo_key[0].'.json'));
+						$thumb = '';
+						$width = 0;
+						$height = 0;
+						if (isset($data[0]->thumbnail_small)) {
+							$thumb = $data[0]->thumbnail_small;
+							$width = intval($data[0]->width);
+							$height = intval($data[0]->height);
+						}    
+						$saveArray['image'] = $thumb;
+						$saveArray['code'] = '<iframe src="http://player.vimeo.com/video/'.$vimeo_key[0].'?title=0&amp;byline=0&amp;portrait=0&amp;color=6fde9f" width="'.$width.'" height="'.$height.'" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
+					}
+					else if ((($media_source[0] == 'www') && ($media_source[1] == 'youtube')) || ($media_source[0] == 'youtu') ) {
+						if(strpos($saveArray['url'], "&v") || strpos($saveArray['url'], "?v")) {
+							$youtube_key = explode('/', $saveArray['url']);
+							$youtube_key = explode('v=', $youtube_key[3]);
+							$youtube_key = explode('&', $youtube_key[1]);
+						} 
+						else {
+							$youtube_key = explode('?', $saveArray['url']);
+							$youtube_key[0] = substr($youtube_key[0], -11);
+						}
+						$thumb = 'http://i.ytimg.com/vi/'.$youtube_key[0].'/default.jpg';
+						$width = 560;
+						$height = 349;
+						$saveArray['image'] = $thumb;
+						$saveArray['code'] = '<iframe width="'.$width.'" height="'.$height.'" src="http://www.youtube.com/embed/'.$youtube_key[0].'?rel=0" frameborder="0" allowfullscreen></iframe>';
+					} */
+					if ($item_id == 0) {
+						$new_order_no = intval($wpdb->get_var('select max(order_no)+1 as pnum from '.WB_VIDEO_GALLERIES_TABLE));
+						$saveArray['order_no'] = $new_order_no;
+						$wpdb->insert(WB_VIDEO_GALLERIES_TABLE,$saveArray);
+						$item_id = $wpdb->insert_id;
+					}
+					else {
+						$wpdb->update(WB_VIDEO_GALLERIES_TABLE,$saveArray,array("id"=>$item_id));
+					}
+					wp_redirect('admin.php?page='.WB_VIDEO_GALLERIES_PAGE);
+					die();
+				}
+				if (isset($_POST['action_name']) && $_POST['action_name'] == 'delete') {
+					if ($item_id>0) {
+						$wpdb->query("DELETE FROM ".WB_VIDEO_GALLERIES_TABLE." WHERE id=".$item_id);
+					}
+					wp_redirect('admin.php?page='.WB_VIDEO_GALLERIES_PAGE);
+					die();
+				}
+			}
         }
     }
+
     
-    private function _get($value, $container, $default = '', $correct = true)
-    {
-	if (isset($container->$value))
-	    return $correct?htmlspecialchars($container->$value):$container->$value;
-	else
-	    return $default;
+    private function _get($value, $container, $default = '', $correct = true) {
+		if (isset($container->$value))
+			return $correct?htmlspecialchars($container->$value):$container->$value;
+		else
+			return $default;
     }
     
-    private function _getPost($value, $default = '')
-    {
-	if (isset($_POST[$value]))
-	{
-	    return $_POST[$value];
-	}
-	else
-	{
-	    return $default;
-	}
+    private function _getPost($value, $default = '') {
+		if (isset($_POST[$value])) {
+			return $_POST[$value];
+		}
+		else {
+			return $default;
+		}
     }
     
-    private function getText($content)
-    {
-	$content = wpautop(convert_chars($content));
-	$content = preg_replace('/\[iframe([^\]]*)\]/mis','<iframe $1></iframe>',$content);
-	
-	return $content;
+    private function getText($content) {
+		$content = wpautop(convert_chars($content));
+		$content = preg_replace('/\[iframe([^\]]*)\]/mis','<iframe $1></iframe>',$content);
+		return $content;
     }
 }
 
