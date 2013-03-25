@@ -6,7 +6,7 @@
     Author URI: http://www.workbox.com/
     Plugin URI: http://blog.workbox.com/wordpress-......./
     Version: 2.0
-    Description: escription goes here.
+    Description: The plugin allows to create a video gallery on any wordpress-generated page. You can add videos from Youtube and Vimeo by simply pasting the video URL. Allows to control sort order of videos on the gallery page.
 
     == Copyright ==
     Copyright 2008-2012 Workbox Inc (email: support@workbox.com) 
