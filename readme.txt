@@ -1,4 +1,4 @@
-=== Plugin Name ===
+﻿=== Plugin Name ===
 Contributors: Workbox
 Author URI: http://www.workbox.com/
 Tags: Video, Gallery, Vimeo, Youtube
@@ -22,7 +22,10 @@ Download and activate the plugin.
 
 == Frequently Asked Questions ==
 1. How do I add the gallery to a page?
-There are 2 ways. First, you can do so on the Plugin Options page by selecting the page you want to carry the gallery functionality. Alternatively you can use the shortcode [workbox_video_YV_list]. 
+
+1) Go to Galleries and click on Add New, enter the Gallery Name and select the website page from the Gallery Page dropdown list. The gallery description field serves to show intro text above the video list.
+
+2) Click on the name of the freshly-created Gallery in the left nav to add new videos as well as view and sort the order of related videos. 
 
 2. How do I control gallery options?
 On the plugin settings page you can also control the look and feel of the gallery including most of the tags and number of videos to show per page.
@@ -32,4 +35,11 @@ On the plugin settings page you can also control the look and feel of the galler
 
 1. Plugin Settings page
 
+
+== Changelog ==
+
+Enhancements
+1. Videos sort order: displaying the most recently added videos at the top of the list.
+
+2. Added option of creating and assigning galleries to different pages.
 
