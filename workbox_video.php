@@ -199,7 +199,7 @@ class workbox_YV_video {
 		$wpdb->query($sql);*/
 
 		// create tables
-		$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
+			$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
 			  `id` int(11) NOT NULL auto_increment,
 			  `title` varchar(255) default NULL,
 			  `url` varchar(255) default NULL,
@@ -211,10 +211,17 @@ class workbox_YV_video {
 			  `gallery_id` int(11) default NULL,
 			  PRIMARY KEY  (`id`)
 			)
-		';
-		$wpdb->query($sql);
+			';
+			$wpdb->query($sql);
+			
+			$sql = 'select gallery_id from '.WB_VIDEO_TABLE.' limit 1';
+			$rows = $wpdb->get_results($sql);
+			if (count($rows) == 0) {
+				$sql = 'alter table '.WB_VIDEO_TABLE.' add gallery_id int(11) after order_no';
+				$wpdb->query($sql);
+			}
 		
-		$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
+			$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
 			  `id` int(11) NOT NULL auto_increment,
 			  `title` varchar(255) default NULL,
 			  `description` text,
@@ -223,13 +230,14 @@ class workbox_YV_video {
 			  `order_no` int(11) default NULL,
 			  PRIMARY KEY  (`id`)
 			)
-		';
-		$wpdb->query($sql);
+			';
+			$wpdb->query($sql);
     }
 
     
 
     public function deactivate() {
+		global $wpdb;
 		
     }
 
