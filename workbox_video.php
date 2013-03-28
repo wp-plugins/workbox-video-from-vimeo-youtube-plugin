@@ -5,8 +5,8 @@
     Author: Workbox Inc.
     Author URI: http://www.workbox.com/
     Plugin URI: http://blog.workbox.com/wordpress-......./
-    Version: 2.0
-    Description: The plugin allows to create a video gallery on any wordpress-generated page. You can add videos from Youtube and Vimeo by simply pasting the video URL. Allows to control sort order of videos on the gallery page.
+    Version: 1.0
+    Description: escription goes here.
 
     == Copyright ==
     Copyright 2008-2012 Workbox Inc (email: support@workbox.com) 
@@ -200,29 +200,29 @@ class workbox_YV_video {
 
 		// create tables
 		$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
-			`id` int(11) NOT NULL auto_increment,
-			`title` varchar(255) default NULL,
-			`post_id` int(11) default NULL,
-			`image` varchar(255) default NULL,
-			`code` text default NULL,
-			`description` text default NULL,
-			`is_live` int(1) default NULL,
-			`order_no` int(11) default NULL,
-			PRIMARY KEY  (`id`)
-			  )
+			  `id` int(11) NOT NULL auto_increment,
+			  `title` varchar(255) default NULL,
+			  `url` varchar(255) default NULL,
+			  `image` varchar(255) default NULL,
+			  `code` text,
+			  `description` text,
+			  `is_live` int(1) default NULL,
+			  `order_no` int(11) default NULL,
+			  `gallery_id` int(11) default NULL,
+			  PRIMARY KEY  (`id`)
+			)
 		';
 		$wpdb->query($sql);
 		
 		$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
-			`id` int(11) NOT NULL auto_increment,
-			`title` varchar(255) default NULL,
-			`description` text,
-			`url` varchar(255) default NULL,
-			`is_live` int(1) default NULL,
-			`order_no` int(11) default NULL,
-			`gallery_id` int(11) default NULL,
-			PRIMARY KEY  (`id`)
-			  )
+			  `id` int(11) NOT NULL auto_increment,
+			  `title` varchar(255) default NULL,
+			  `description` text,
+			  `post_id` int(11) default NULL,
+			  `is_live` int(1) default NULL,
+			  `order_no` int(11) default NULL,
+			  PRIMARY KEY  (`id`)
+			)
 		';
 		$wpdb->query($sql);
     }
@@ -230,11 +230,7 @@ class workbox_YV_video {
     
 
     public function deactivate() {
-        global $wpdb;
-        $sql = "DROP TABLE IF EXISTS ".WB_VIDEO_TABLE;
-		$wpdb->query($sql);
-		$sql = "DROP TABLE IF EXISTS ".WB_VIDEO_GALLERIES_TABLE;
-		$wpdb->query($sql);
+		
     }
 
     
