@@ -193,10 +193,10 @@ class workbox_YV_video {
 
     public function activate() {
         global $wpdb;
-        $sql = "DROP TABLE IF EXISTS ".WB_VIDEO_TABLE;
+        /*$sql = "DROP TABLE IF EXISTS ".WB_VIDEO_TABLE;
 		$wpdb->query($sql);
 		$sql = "DROP TABLE IF EXISTS ".WB_VIDEO_GALLERIES_TABLE;
-		$wpdb->query($sql);
+		$wpdb->query($sql);*/
 
 		// create tables
 		$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
