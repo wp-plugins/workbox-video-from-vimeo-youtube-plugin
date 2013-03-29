@@ -5,7 +5,7 @@
     Author: Workbox Inc.
     Author URI: http://www.workbox.com/
     Plugin URI: http://blog.workbox.com/wordpress-......./
-    Version: 2.0
+    Version: 2.1
     Description: The plugin allows to create a video gallery on any wordpress-generated page. You can add videos from Youtube and Vimeo by simply pasting the video URL. Allows to control sort order of videos on the gallery page. This plugin is for advanced users. If you run into problems, please send us detailed notes about your set up and the errors and we'll do our best to get back to you. * Version 2.0: Added ability to create multiple galleries!
 
     == Copyright ==
@@ -33,10 +33,11 @@
 	define("WB_VIDEO_OPTIONS_PAGE",'wb_video_VY_options');
 	define("WB_VIDEO_GALLERIES_PAGE",'wb_video_VY_galleries');
 
-	// activation and deactivation hooks
+	// activation, deactivation and uninstall hooks
 	register_activation_hook( __FILE__, array('workbox_YV_video','activate') );
 	register_deactivation_hook( __FILE__, array('workbox_YV_video','deactivate') );
-
+	register_uninstall_hook( __FILE__, array( 'workbox_YV_video', 'uninstall' ) );
+	
 	// initialisation function for the administration part of the plugin
 	add_action('admin_init',array('workbox_YV_video','init'));
 	// shows menu in admin  area
@@ -69,15 +70,58 @@ class workbox_YV_video {
     }
     
     public function add_js() {
-	/*wp_deregister_script( 'jquery' );
-	wp_enqueue_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js');
-        wp_enqueue_script('fancybox', WB_VID_URL.'jquery.fancybox.js');*/
+		wp_deregister_script( 'jquery' );
+		wp_enqueue_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js');
+        wp_enqueue_script('fancybox', WB_VID_URL.'jquery.fancybox.js');
     }
     
     public function add_style() {
-        //wp_enqueue_style('fancybox',WB_VID_URL.'jquery.fancybox.css');
+        wp_enqueue_style('fancybox',WB_VID_URL.'jquery.fancybox.css');
     }
     
+	//check tables in DB, if not exists, creates their
+	public function checkTables() {
+		global $wpdb;
+		$r = mysql_query('SELECT 1 FROM `'.WB_VIDEO_TABLE.'` WHERE 0');
+		if (!$r) {
+			$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
+			  `id` int(11) NOT NULL auto_increment,
+			  `title` varchar(255) default NULL,
+			  `url` varchar(255) default NULL,
+			  `image` varchar(255) default NULL,
+			  `code` text,
+			  `description` text,
+			  `is_live` int(1) default NULL,
+			  `order_no` int(11) default NULL,
+			  `gallery_id` int(11) default NULL,
+			  PRIMARY KEY  (`id`)
+			)
+			';
+			$wpdb->query($sql);
+		}
+		else {
+			$r = mysql_query('select gallery_id from '.WB_VIDEO_TABLE.' limit 1');
+			if (!$r) {
+				$sql = 'alter table '.WB_VIDEO_TABLE.' add gallery_id int(11) after order_no';
+				$wpdb->query($sql);
+			}
+		}
+		$r = mysql_query('SELECT 1 FROM `'.WB_VIDEO_GALLERIES_TABLE.'` WHERE 0');
+		if (!$r) {
+			$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
+			  `id` int(11) NOT NULL auto_increment,
+			  `title` varchar(255) default NULL,
+			  `description` text,
+			  `post_id` int(11) default NULL,
+			  `is_live` int(1) default NULL,
+			  `order_no` int(11) default NULL,
+			  PRIMARY KEY  (`id`)
+			)
+			';
+			$wpdb->query($sql);
+		}
+	}
+	
     // outputs the content then functionality is attached to specific page
     public function inpost($content) {
 		global $wpdb, $posts;
@@ -192,53 +236,22 @@ class workbox_YV_video {
     
 
     public function activate() {
-        global $wpdb;
-        /*$sql = "DROP TABLE IF EXISTS ".WB_VIDEO_TABLE;
-		$wpdb->query($sql);
-		$sql = "DROP TABLE IF EXISTS ".WB_VIDEO_GALLERIES_TABLE;
-		$wpdb->query($sql);*/
-
 		// create tables
-			$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
-			  `id` int(11) NOT NULL auto_increment,
-			  `title` varchar(255) default NULL,
-			  `url` varchar(255) default NULL,
-			  `image` varchar(255) default NULL,
-			  `code` text,
-			  `description` text,
-			  `is_live` int(1) default NULL,
-			  `order_no` int(11) default NULL,
-			  `gallery_id` int(11) default NULL,
-			  PRIMARY KEY  (`id`)
-			)
-			';
-			$wpdb->query($sql);
-			
-			$sql = 'select gallery_id from '.WB_VIDEO_TABLE.' limit 1';
-			$rows = $wpdb->get_results($sql);
-			if (count($rows) == 0) {
-				$sql = 'alter table '.WB_VIDEO_TABLE.' add gallery_id int(11) after order_no';
-				$wpdb->query($sql);
-			}
-		
-			$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
-			  `id` int(11) NOT NULL auto_increment,
-			  `title` varchar(255) default NULL,
-			  `description` text,
-			  `post_id` int(11) default NULL,
-			  `is_live` int(1) default NULL,
-			  `order_no` int(11) default NULL,
-			  PRIMARY KEY  (`id`)
-			)
-			';
-			$wpdb->query($sql);
+		self::checkTables();
     }
 
     
 
     public function deactivate() {
+
+    }
+	
+	public function uninstall() {
 		global $wpdb;
-		
+		$sql = "DROP TABLE IF EXISTS ".WB_VIDEO_TABLE;
+		$wpdb->query($sql);
+		$sql = "DROP TABLE IF EXISTS ".WB_VIDEO_GALLERIES_TABLE;
+		$wpdb->query($sql);
     }
 
     
@@ -280,7 +293,7 @@ class workbox_YV_video {
             <br>
             <h2>List of videos <a href="admin.php?page='.WB_VIDEO_PAGE.'&edit" class="add-new-h2">Add New</a></h2>
             ';
-        if (count($list)>0) {
+        if (count($list) > 0) {
 			$current_url = parse_url($_SERVER['REQUEST_URI']);
 			$html.= '
 			<table class="widefat" cellspacing="0" style="width:100%;">
@@ -331,7 +344,7 @@ class workbox_YV_video {
         
         $html.= '
         <div class="wrap"><form action="" method="post" name="edit_form" enctype="multipart/form-data">
-        <h2>'.($item_id?'Edit Record: '.$wb_form_info->title:'Add New Record').'</h2>
+        <h2>'.($item_id?'Edit Record: '.$wb_form_info->title:'Add New Video').'</h2>
         <script language="JavaScript">
 			function doCancel() {
 				window.location.href="admin.php?page='.WB_VIDEO_PAGE.'";    
@@ -540,7 +553,7 @@ class workbox_YV_video {
 			$item_id = isset($_GET['id'])?intval($_GET['id']):0;
 			$html.= '
 			<div class="wrap"><form action="" method="post" name="edit_form" enctype="multipart/form-data">
-            <h2>'.($item_id?'Edit Record: '.$wb_form_info->title:'Add New Record').'</h2>
+            <h2>'.($item_id?'Edit Record: '.$wb_form_info->title:'Add New Gallery').'</h2>
             <script language="JavaScript">
                 function doCancel() {
 					window.location.href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'";    
@@ -668,7 +681,7 @@ class workbox_YV_video {
 			$html.= '
 			<div class="wrap">
 				<br>
-				<h2>List of videos <a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&edit" class="add-new-h2">Add New</a></h2>
+				<h2>Gallery List <a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&edit" class="add-new-h2">Add New</a></h2>
 				';	
 			if (count($list)>0) {
 				$current_url = parse_url($_SERVER['REQUEST_URI']);
@@ -903,6 +916,7 @@ class workbox_YV_video {
 
     public function init() {
         global $wpdb;
+		self::checkTables();
         if (isset($_POST['_workbox_edit_video_VY_options_attempt'])) {
             // edit options ettempt
             if (isset($_POST['wb_video_VY_fw'])) {
@@ -1115,46 +1129,6 @@ class workbox_YV_video {
 						'description'=>stripcslashes(self::_getPost("description")),
 						'is_live'=>intval(self::_getPost("is_live")),
 					);
-					// now check the URL
-					/*$pos = strpos($saveArray['url'], 'http://');
-					if( $pos === false ) {
-						$saveArray['url'] = 'http://' . $saveArray['url'];
-					}
-					$media_source = explode('/', $saveArray['url']);
-					$media_source = explode('.', $media_source[2]);
-					if ((($media_source[0] == 'www') && ($media_source[1] == 'vimeo')) || ($media_source[0] == 'vimeo')) {
-						// vimeo
-						$vimeo_key = explode('.com/', $saveArray['url']);
-						$vimeo_key = explode('?', $vimeo_key[1]);
-						// get info
-						$data = @json_decode(file_get_contents('http://vimeo.com/api/v2/video/'.$vimeo_key[0].'.json'));
-						$thumb = '';
-						$width = 0;
-						$height = 0;
-						if (isset($data[0]->thumbnail_small)) {
-							$thumb = $data[0]->thumbnail_small;
-							$width = intval($data[0]->width);
-							$height = intval($data[0]->height);
-						}    
-						$saveArray['image'] = $thumb;
-						$saveArray['code'] = '<iframe src="http://player.vimeo.com/video/'.$vimeo_key[0].'?title=0&amp;byline=0&amp;portrait=0&amp;color=6fde9f" width="'.$width.'" height="'.$height.'" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
-					}
-					else if ((($media_source[0] == 'www') && ($media_source[1] == 'youtube')) || ($media_source[0] == 'youtu') ) {
-						if(strpos($saveArray['url'], "&v") || strpos($saveArray['url'], "?v")) {
-							$youtube_key = explode('/', $saveArray['url']);
-							$youtube_key = explode('v=', $youtube_key[3]);
-							$youtube_key = explode('&', $youtube_key[1]);
-						} 
-						else {
-							$youtube_key = explode('?', $saveArray['url']);
-							$youtube_key[0] = substr($youtube_key[0], -11);
-						}
-						$thumb = 'http://i.ytimg.com/vi/'.$youtube_key[0].'/default.jpg';
-						$width = 560;
-						$height = 349;
-						$saveArray['image'] = $thumb;
-						$saveArray['code'] = '<iframe width="'.$width.'" height="'.$height.'" src="http://www.youtube.com/embed/'.$youtube_key[0].'?rel=0" frameborder="0" allowfullscreen></iframe>';
-					} */
 					if ($item_id == 0) {
 						$new_order_no = intval($wpdb->get_var('select max(order_no)+1 as pnum from '.WB_VIDEO_GALLERIES_TABLE));
 						$saveArray['order_no'] = $new_order_no;
