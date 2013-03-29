@@ -198,7 +198,7 @@ class workbox_YV_video {
 		}
 
 		// get list
-		$list = $wpdb->get_results('select a.*, b.post_id from '.WB_VIDEO_TABLE.' a, '.WB_VIDEO_GALLERIES_TABLE.' b where a.is_live=1 and b.is_live=1 and b.post_id = '.$post_id.' and a.gallery_id = b.id order by a.order_no desc'.$sSQLLimit);
+		$list = $wpdb->get_results('select a.*, b.post_id from '.WB_VIDEO_TABLE.' a, '.WB_VIDEO_GALLERIES_TABLE.' b where a.is_live=1 and b.is_live=1 and b.post_id = '.$post_id.' and a.gallery_id = b.id order by b.order_no, a.order_no desc'.$sSQLLimit);
 		
 		// generate main HTML
 		$html = $page_html;
