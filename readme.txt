@@ -23,5 +23,5 @@ On the plugin settings page you can also control the look and feel of the galler
 == Changelog ==
 = 2.0 =
 * Users can create as many galleries as they want. Each gallery can be attached to one page.
-* Videos sort order: displaying the most recently added videos at the top of the list.= 2.1 =* Fixed bug with update plugin files* Fixed critical bug with add galleries and videos* Note! Tables from databases will deleted after uninstall plugin
+* Videos sort order: displaying the most recently added videos at the top of the list.= 2.1 =* Fixed bug with updating plugin files* Fixed critical bug with adding galleries and videos* Note! Database tables will deleted after uninstalling the plugin
 
