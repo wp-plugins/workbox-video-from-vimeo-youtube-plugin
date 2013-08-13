@@ -3,7 +3,7 @@
     Author: Workbox Inc.
     Author URI: http://www.workbox.com/
     Plugin URI: http://blog.workbox.com/wordpress-video-gallery-plugin/
-    Version: 2.2.1
+    Version: 2.3
     Description: The plugin allows to create a video gallery on any wordpress-generated page. 
 	You can add videos from Youtube, Vimeo and Wistia by simply pasting the video URL. 
 	Allows to control sort order of videos on the gallery page. Video galleries can be called on a page by using shortcodes now.
@@ -60,11 +60,13 @@ class workbox_YV_video {
 	    .wb_video_pager a {'.(get_option('class_wb_video_pager_a') != ''?get_option('class_wb_video_pager_a'):'').'}
 	    .wb_video_container {'.(get_option('class_wb_video_container') != ''?get_option('class_wb_video_container'):'width: 100%; padding: 20px 0;').'}
 	    .wb_video_item {'.(get_option('class_wb_video_item') != ''?get_option('class_wb_video_item'):'clear: both;').'}
-	    .wb_video_image_link {'.(get_option('class_wb_video_image_link') != ''?get_option('class_wb_video_image_link'):'float: left; padding: 0 20px 20px 0;').'}
+	    .wb_video_image_link {'.(get_option('class_wb_video_image_link') != ''?get_option('class_wb_video_image_link'):'float: left; padding: 0 20px 5px 0;').'}
 	    .wb_video_image_img  {'.(get_option('class_wb_video_image_img') != ''?get_option('class_wb_video_image_img'):'').'}
 	    .wb_video_title {'.(get_option('class_wb_video_title') != ''?get_option('class_wb_video_title'):'').'}
 	    .wb_video_description {'.(get_option('class_wb_video_description') != ''?get_option('class_wb_video_description'):'').'}
 	    .wb_video_icon {position:absolute; left:46px; top:33px; display:block; width:31px; height:27px; background:url('.WB_VID_URL.'ico-play.png) 0 0 no-repeat;}
+		.wb_horizontal_container { clear: both; }
+		.wb_horizontal_container .wb_video_item { float: left; clear: none; }
 	</style>
 	';
     }
@@ -114,6 +116,7 @@ class workbox_YV_video {
 			  `description` text,
 			  `post_id` int(11) default NULL,
 			  `post_blog_id` int(11) default NULL,
+			  `is_vertical` int(1) default NULL,
 			  `is_live` int(1) default NULL,
 			  `order_no` int(11) default NULL,
 			  PRIMARY KEY  (`id`)
@@ -125,6 +128,11 @@ class workbox_YV_video {
 			$r = mysql_query('select post_blog_id from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
 			if (!$r) {
 				$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add post_blog_id int(11) after post_id';
+				$wpdb->query($sql);
+			}
+			$r = mysql_query('select is_vertical from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
+			if (!$r) {
+				$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add is_vertical int(1) after post_blog_id';
 				$wpdb->query($sql);
 			}
 		}
@@ -221,22 +229,47 @@ class workbox_YV_video {
 		
 		// get list
 		if ($gallery_name != false) {
-			$list = $wpdb->get_results('select a.*, b.post_id, b.post_blog_id from '.WB_VIDEO_TABLE.' a, '.WB_VIDEO_GALLERIES_TABLE.' b where a.is_live=1 and b.is_live=1 and b.title = \''.$gallery_name.'\' and a.gallery_id = b.id order by b.order_no, a.order_no desc'.$sSQLLimit);
+			$list = $wpdb->get_results('select a.*, b.post_id, b.post_blog_id, b.is_vertical from '.WB_VIDEO_TABLE.' a, '.WB_VIDEO_GALLERIES_TABLE.' b where a.is_live=1 and b.is_live=1 and b.title = \''.$gallery_name.'\' and a.gallery_id = b.id order by b.order_no, a.order_no desc'.$sSQLLimit);
 		}
 		else {
-			$list = $wpdb->get_results('select a.*, b.post_id, b.post_blog_id from '.WB_VIDEO_TABLE.' a, '.WB_VIDEO_GALLERIES_TABLE.' b where a.is_live=1 and b.is_live=1 and (b.post_id = '.$post_id.' or b.post_blog_id = '.$post_id.') and a.gallery_id = b.id order by b.order_no, a.order_no desc'.$sSQLLimit);
+			$list = $wpdb->get_results('select a.*, b.post_id, b.post_blog_id, b.is_vertical from '.WB_VIDEO_TABLE.' a, '.WB_VIDEO_GALLERIES_TABLE.' b where a.is_live=1 and b.is_live=1 and (b.post_id = '.$post_id.' or b.post_blog_id = '.$post_id.') and a.gallery_id = b.id order by b.order_no, a.order_no desc'.$sSQLLimit);
 		}
 		
 		// generate main HTML
 		$html = $page_html;
 			$html.= '<div class="wb_video_container">';
+			$countInLine = htmlspecialchars(get_option('class_wb_video_count_in_line'));
+			$index = 1;
+			//this flag for begin printing wb_horizontal_container
+			$flagOfBegin = false;
 			foreach($list as $k=>$item) {
+				if ( ($index == 1) && ($item->is_vertical == 0) ) {
+					$html .= '<div class="wb_horizontal_container">';
+					$flagOfBegin = true;
+				}
 				$html.= '<div class="wb_video_item">';
 				$html.= '<a href="#movie'.$k.'" class="wb_video_image_link wbfancybox" style="position: relative;"><img src="'.$item->image.'" width="120" class="wb_video_image_img"><b class="wb_video_icon"></b></a>';
-				$html.= '<a href="#movie'.$k.'" class="wb_video_title wbfancybox">'.$item->title.'</a>';
+				if ($item->title) {
+					if ($item->is_vertical == 0) {
+						$html.= '<div class="wb_video_title"><a href="#movie'.$k.'" class="wb_video_title wbfancybox">'.$item->title.'</a></div>';
+					}
+					else {
+						$html.= '<a href="#movie'.$k.'" class="wb_video_title wbfancybox">'.$item->title.'</a>';
+					}
+				}
 				if ($item->description) {
 					$html.= '<div class="wb_video_description">'.$item->description.'</div>';
 				}
+				$html.= '</div>';
+				if ($flagOfBegin == true) {
+					if ($index == $countInLine) {
+						$html.= '</div>';
+						$index = 0;
+					}
+					$index++;
+				}
+			}
+			if ( ($index <= $countInLine) && ($flagOfBegin == true) && ($index > 1) ) {
 				$html.= '</div>';
 			}
 			$html.= '</div>';
@@ -739,6 +772,12 @@ class workbox_YV_video {
 						</td>
 					</tr>
 					<tr>
+                        <td width="30%" align="right"><b>Stack videos vertically?</td>
+                        <td width="70%">
+							<input type="checkbox" name="is_vertical" value="1" '.(self::_get('is_vertical',$wb_form_info,1) == 1?'checked':'').'>    
+						</td>
+                    </tr>
+					<tr>
                         <td width="30%" align="right"><b>Is Live?</td>
                         <td width="70%">
 							<input type="checkbox" name="is_live" value="1" '.(self::_get('is_live',$wb_form_info,1) == 1?'checked':'').'>    
@@ -969,7 +1008,7 @@ class workbox_YV_video {
 			<br><br>
                     </td>
                 </tr>
-		<tr>
+			<tr>
                     <td width="200" align="right"><b>Video description container DIV:</b><br>(.wb_video_description)<br>&nbsp;</td>
                     <td>
                         <input type="text" name="class_wb_video_description" value="'.htmlspecialchars(get_option('class_wb_video_description')).'" style="width: 100%;">
@@ -977,14 +1016,17 @@ class workbox_YV_video {
 			<i>Default value: none</i>
 			<br><br>
                     </td>
-                </tr>
-		
-                <tr>
-                    <td width="200" align="right">&nbsp;</td>
-                    <td>
-                        <input type="submit" value="Update Options">
-                    </td>
-                </tr>
+            </tr>
+			<tr>
+				<td width="200" align="right"><b>Count of video in line:</b></td>
+				<td><input type="text" name="class_wb_video_count_in_line" value="'.htmlspecialchars(get_option('class_wb_video_count_in_line')).'" style="width: 100%;"></td>
+			</tr>
+            <tr>
+                <td width="200" align="right">&nbsp;</td>
+                <td>
+					<input type="submit" value="Update Options">
+                </td>
+            </tr>
             </table>
         </form>
         <script language="JavaScript">
@@ -1041,6 +1083,10 @@ class workbox_YV_video {
 	    
 			if (isset($_POST['class_wb_video_description'])) {
 				update_option('class_wb_video_description',($_POST['class_wb_video_description']));
+            }
+			
+			if (isset($_POST['class_wb_video_count_in_line'])) {
+				update_option('class_wb_video_count_in_line',($_POST['class_wb_video_count_in_line']));
             }
             wp_redirect('admin.php?page='.WB_VIDEO_OPTIONS_PAGE.'&updated');
             die();
@@ -1197,7 +1243,7 @@ class workbox_YV_video {
 				}
             }
         }	
-			//for galleries
+		//for galleries
 		if (isset($_GET['edit']) && isset($_GET['page']) && $_GET['page'] == WB_VIDEO_GALLERIES_PAGE) {
             $GLOBALS['wb_form_info'] = array();
 			$item_id = 0;
@@ -1220,6 +1266,7 @@ class workbox_YV_video {
 						'post_blog_id'=>stripcslashes(self::_getPost("post_blog_id")),
 						'description'=>stripcslashes(self::_getPost("description")),
 						'is_live'=>intval(self::_getPost("is_live")),
+						'is_vertical'=>intval(self::_getPost("is_vertical")),
 					);
 					if ($item_id == 0) {
 						$new_order_no = intval($wpdb->get_var('select max(order_no)+1 as pnum from '.WB_VIDEO_GALLERIES_TABLE));
