@@ -243,8 +243,12 @@ class workbox_YV_video {
 			//this flag for begin printing wb_horizontal_container
 			$flagOfBegin = false;
 			foreach($list as $k=>$item) {
-				if ( ($index == 1) && ($item->is_vertical == 0) ) {
-					$html .= '<div class="wb_horizontal_container">';
+				$class = ' class="wb_vertical_container"';
+				if ($item->is_vertical == 0) {
+					$class = ' class="wb_horizontal_container"';
+				}
+				if ($index == 1) {
+					$html .= '<div'.$class.'>';
 					$flagOfBegin = true;
 				}
 				$html.= '<div class="wb_video_item">';
