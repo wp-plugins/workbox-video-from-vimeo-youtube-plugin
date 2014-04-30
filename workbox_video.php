@@ -67,6 +67,7 @@ class workbox_YV_video {
 	    .wb_video_icon {position:absolute; left:46px; top:33px; display:block; width:31px; height:27px; background:url('.WB_VID_URL.'ico-play.png) 0 0 no-repeat;}
 		.wb_horizontal_container { clear: both; }
 		.wb_horizontal_container .wb_video_item { float: left; clear: none; }
+		.fancybox-wrap { overflow: visible!important; }
 	</style>
 	';
     }
