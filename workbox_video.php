@@ -3,7 +3,7 @@
     Author: Workbox Inc.
     Author URI: http://www.workbox.com/
     Plugin URI: http://blog.workbox.com/wordpress-video-gallery-plugin/
-    Version: 2.3
+    Version: 2.3.1
     Description: The plugin allows to create a video gallery on any wordpress-generated page. 
 	You can add videos from Youtube, Vimeo and Wistia by simply pasting the video URL. 
 	Allows to control sort order of videos on the gallery page. Video galleries can be called on a page by using shortcodes now.
@@ -184,7 +184,9 @@ class workbox_YV_video {
     }
     
 	private function __getContent($show_type, $gallery_name = false) {
-		global $wpdb, $posts;
+		global $wpdb, $posts, $count;
+		if ($count == null) $count = 0;
+		$count++;
 		$post_id = get_the_ID();
 		$page_len = intval(get_option('wb_video_VY_page_len'));
 		//$total = $wpdb->get_var('select count(id) from '.WB_VIDEO_TABLE.' where is_live=1');
@@ -252,13 +254,13 @@ class workbox_YV_video {
 					$flagOfBegin = true;
 				}
 				$html.= '<div class="wb_video_item">';
-				$html.= '<a href="#movie'.$k.'" class="wb_video_image_link wbfancybox" style="position: relative;"><img src="'.$item->image.'" width="120" class="wb_video_image_img"><b class="wb_video_icon"></b></a>';
+				$html.= '<a href="#movie'.$count.'_'.$k.'" class="wb_video_image_link wbfancybox" style="position: relative;"><img src="'.$item->image.'" width="120" class="wb_video_image_img"><b class="wb_video_icon"></b></a>';
 				if ($item->title) {
 					if ($item->is_vertical == 0) {
-						$html.= '<div class="wb_video_title"><a href="#movie'.$k.'" class="wb_video_title wbfancybox">'.$item->title.'</a></div>';
+						$html.= '<div class="wb_video_title"><a href="#movie'.$count.'_'.$k.'" class="wb_video_title wbfancybox">'.$item->title.'</a></div>';
 					}
 					else {
-						$html.= '<a href="#movie'.$k.'" class="wb_video_title wbfancybox">'.$item->title.'</a>';
+						$html.= '<a href="#movie'.$count.'_'.$k.'" class="wb_video_title wbfancybox">'.$item->title.'</a>';
 					}
 				}
 				if ($item->description) {
@@ -281,7 +283,7 @@ class workbox_YV_video {
 		
 		foreach($list as $k=>$item) {
 			$html.= '
-			<div style="display: none;" id="movie'.$k.'">'.$item->code.'</div>
+			<div style="display: none;" id="movie'.$count.'_'.$k.'">'.$item->code.'</div>
 			';
 		}
 		$html.= '
