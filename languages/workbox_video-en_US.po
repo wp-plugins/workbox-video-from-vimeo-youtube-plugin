@@ -1,0 +1,298 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: workbox_video\n"
+"POT-Creation-Date: 2014-05-29 11:57+0600\n"
+"PO-Revision-Date: 2014-05-29 11:58+0600\n"
+"Last-Translator: Artem Pavlenko <pavlenko_artem1@mail.ru>\n"
+"Language-Team: Workbox <artem.pavlenko@workbox.com>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.5\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: _;gettext;_e;__;_x;_n\n"
+"X-Poedit-SearchPath-0: D:\\wb\\vimeo plugin\\wordpress repo\n"
+"X-Poedit-SearchPath-1: D:\\wb\\vimeo plugin\\wordpress repo\\workbox_video."
+"php\n"
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:333
+msgid "Videos"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:334
+msgid "Galleries"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:342
+msgid "Options"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:366
+msgid "List of videos"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:366
+#: repo/workbox_video.php:597 repo/workbox_video.php:813
+msgid "Add New"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:375
+#: repo/workbox_video.php:613
+msgid "Video Title"
+msgstr "Video Title"
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:376
+#: repo/workbox_video.php:502
+msgid "Video Gallery"
+msgstr "Video Gallery"
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:377
+#: repo/workbox_video.php:614
+msgid "Video Thumbnail"
+msgstr "Video Thumbnail"
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:386
+#: repo/workbox_video.php:623 repo/workbox_video.php:833
+msgid "edit"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:394
+msgid "not attached"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:421
+#: repo/workbox_video.php:632 repo/workbox_video.php:843
+msgid "Currently there are no records"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:437
+#: repo/workbox_video.php:646
+msgid "Edit Record"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:437
+msgid "Add New Video"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:445
+#: repo/workbox_video.php:653
+msgid "Do you really want to delete this record?"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:468
+#: repo/workbox_video.php:479 repo/workbox_video.php:673
+#: repo/workbox_video.php:684
+msgid "Publish"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:473
+#: repo/workbox_video.php:678
+msgid "Delete"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:478
+#: repo/workbox_video.php:683
+msgid "back to list"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:496
+msgid "Video Name"
+msgstr "Video Name"
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:505
+msgid "not attached to any gallery"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:525
+msgid "Gallery is not active"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:534
+msgid "Video URL"
+msgstr "Video URL"
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:540
+msgid "Video Description"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:560
+msgid "Show video?"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:597
+msgid "List of videos in"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:603
+msgid "Error"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:615
+#: repo/workbox_video.php:825
+msgid "Sort"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:626
+#: repo/workbox_video.php:837
+msgid "Up"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:626
+#: repo/workbox_video.php:837
+msgid "Down"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:646
+msgid "Add New Gallery"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:704
+msgid "Gallery Name"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:710
+#: repo/workbox_video.php:823
+msgid "Gallery Page"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:713
+msgid "not attached to any page"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:739
+#: repo/workbox_video.php:824
+msgid "Gallery Post Page"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:742
+msgid "not attached to any post page"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:768
+msgid "Gallery Description"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:773
+msgid "description"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:787
+msgid "Stack videos vertically?"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:793
+msgid "Is Live?"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:813
+msgid "Gallery List"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:822
+msgid "Gallery Title"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:860
+msgid "Workbox Video Plugin Options"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:864
+msgid "Settings updated!"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:900
+msgid "__Functionality type__"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:902
+msgid "Select a page"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:904
+msgid "Use a ShortCode"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:906
+msgid "Use a PHP function"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:930
+msgid "Using a shortcode"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:932
+msgid ""
+"Use a shortcode [workbox_video_YV_list gallery_name=\"Test Post Gallery\"] "
+"where Test Post Gallery is the name of the gallery you want to use on the "
+"page."
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:939
+msgid "Using a function"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:941
+msgid "Use a echo workbox_YV_video::showList(); to show a list of videos"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:950
+msgid "Show videos on page"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:950
+msgid "0 - no pagination"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:957
+msgid "CSS Options (leave the field empty fot default value)"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:961
+msgid "Pages counter DIV container"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:965
+#: repo/workbox_video.php:974 repo/workbox_video.php:983
+#: repo/workbox_video.php:992 repo/workbox_video.php:1001
+#: repo/workbox_video.php:1010
+msgid "Default value"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:970
+msgid "Pages counter DIV container link"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:979
+msgid "Main container DIV"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:988
+msgid "Specific item container DIV"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:997
+msgid "Image link A"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:1006
+msgid "Image"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:1015
+msgid "Video title link A"
+msgstr "Video title link A"
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:1024
+msgid "Video description container DIV"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:1033
+msgid "Count of video in line"
+msgstr ""
+
+#: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:1039
+msgid "Update Options"
+msgstr ""
