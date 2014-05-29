@@ -3,7 +3,7 @@
     Author: Workbox Inc.
     Author URI: http://www.workbox.com/
     Plugin URI: http://blog.workbox.com/wordpress-video-gallery-plugin/
-    Version: 2.3.1
+    Version: 2.3.2
     Description: The plugin allows to create a video gallery on any wordpress-generated page. 
 	You can add videos from Youtube, Vimeo and Wistia by simply pasting the video URL. 
 	Allows to control sort order of videos on the gallery page. Video galleries can be called on a page by using shortcodes now.
@@ -50,7 +50,12 @@
 	add_action('wp_enqueue_scripts', array('workbox_YV_video','add_js'));
 	add_action('init', array('workbox_YV_video','add_style'));
 	add_action('wp_head',array('workbox_YV_video','add_custom_style'));
-
+	load_plugin_textdomain('workbox_video', false, basename( dirname( __FILE__ ) ) . '/languages' );
+	function ap_action_init() {
+		load_plugin_textdomain('workbox_video', false, dirname(plugin_basename(__FILE__)));
+	}
+	add_action('init', 'ap_action_init');
+	
 class workbox_YV_video {
     public function add_custom_style()
     {
@@ -325,8 +330,8 @@ class workbox_YV_video {
 
     public function menu() {
         global $wpdb;
-		add_menu_page("Videos", "Videos", "administrator",WB_VIDEO_PAGE, array(__CLASS__,'get_list'),false);
-        add_submenu_page(WB_VIDEO_PAGE, "Galleries", "Galleries", "administrator",WB_VIDEO_GALLERIES_PAGE, array(__CLASS__,'get_galleries'));
+		add_menu_page("Videos", __('Videos','workbox_video'), "administrator",WB_VIDEO_PAGE, array(__CLASS__,'get_list'),false);
+        add_submenu_page(WB_VIDEO_PAGE, "Galleries", __("Galleries",'workbox_video'), "administrator",WB_VIDEO_GALLERIES_PAGE, array(__CLASS__,'get_galleries'));
 		$sql = 'select * from '.WB_VIDEO_GALLERIES_TABLE.' where is_live=1 order by order_no';
 		$list = $wpdb->get_results($sql);
 		if (count($list) > 0) {
@@ -334,7 +339,7 @@ class workbox_YV_video {
 				add_submenu_page(WB_VIDEO_PAGE, $item->title, $item->title, "administrator", 'gallery_'.$item->id, array(__CLASS__,'getVideoByGallery'));
 			}
 		}
-		add_submenu_page(WB_VIDEO_PAGE, "Options", "Options", "administrator",WB_VIDEO_OPTIONS_PAGE, array(__CLASS__,'get_options'));
+		add_submenu_page(WB_VIDEO_PAGE, "Options", __("Options",'workbox_video'), "administrator",WB_VIDEO_OPTIONS_PAGE, array(__CLASS__,'get_options'));
     }
 
     
@@ -358,7 +363,7 @@ class workbox_YV_video {
         $html.= '
         <div class="wrap">
             <br>
-            <h2>List of videos <a href="admin.php?page='.WB_VIDEO_PAGE.'&edit" class="add-new-h2">Add New</a></h2>
+            <h2>'.__('List of videos','workbox_video').' <a href="admin.php?page='.WB_VIDEO_PAGE.'&edit" class="add-new-h2">'.__('Add New','workbox_video').'</a></h2>
             ';
         if (count($list) > 0) {
 			$current_url = parse_url($_SERVER['REQUEST_URI']);
@@ -367,9 +372,9 @@ class workbox_YV_video {
 			<thead>
 				<tr>
 				<th class="manage-column" width="50">&nbsp;</th>
-				<th class="manage-column">Video Title</th>
-				<th class="manage-column">Video Gallery</th>
-				<th class="manage-column" width="120">Video Thumbnail</th>
+				<th class="manage-column">'.__('Video Title', 'workbox_video').'</th>
+				<th class="manage-column">'.__('Video Gallery','workbox_video').'</th>
+				<th class="manage-column" width="120">'.__('Video Thumbnail','workbox_video').'</th>
 				'.//<th class="manage-column" width="100">Sort</th>
 				'</tr>
 			</thead>
@@ -378,7 +383,7 @@ class workbox_YV_video {
 				$tr_style = 'style="background-color: #'.($item->is_live?"ccffcc":"ffcccc").'"';
 				$color_border = !$item->is_live?'#fff':'#ccc';
 				$html.='<tr class="iedit" '.$tr_style.'>';
-				$html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&id='.$item->id.'">edit</a></td>';
+				$html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&id='.$item->id.'">'.__('edit','workbox_video').'</a></td>';
 				$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.$item->title.'</td>';
 				$titleGallery = '';
 				$flag = true;
@@ -386,7 +391,7 @@ class workbox_YV_video {
 					$flag = false;
 				}
 				if ($flag == false) {
-					$titleGallery = $item->gallery_title.' (not attached)';
+					$titleGallery = $item->gallery_title.' ('.__('not attached','workbox_video').')';
 				}
 				else {
 					$title1 = get_the_title($item->post_id);
@@ -413,7 +418,7 @@ class workbox_YV_video {
 			$html.='</tbody></table>';
         }
         else {
-            $html.= '<br><br>Currently there are no records';
+            $html.= '<br><br>'.__('Currently there are no records','workbox_video');
         }
         $html.= '</div>';
         echo $html;
@@ -429,7 +434,7 @@ class workbox_YV_video {
         
         $html.= '
         <div class="wrap"><form action="" method="post" name="edit_form" enctype="multipart/form-data">
-        <h2>'.($item_id?'Edit Record: '.$wb_form_info->title:'Add New Video').'</h2>
+        <h2>'.($item_id?__('Edit Record','workbox_video').': '.$wb_form_info->title:__('Add New Video','workbox_video')).'</h2>
         <script language="JavaScript">
 			function doCancel() {
 				window.location.href="admin.php?page='.WB_VIDEO_PAGE.'";    
@@ -437,7 +442,7 @@ class workbox_YV_video {
 			function doDelete() {
 				oForm = document.forms.edit_form;
 				
-				if (confirm("Do you really want to delete this record?"))
+				if (confirm("'.__('Do you really want to delete this record?','workbox_video').'"))
 				{
 				oForm.action_name.value = "delete";
 				oForm.action = "";
@@ -460,18 +465,18 @@ class workbox_YV_video {
             <div class="metabox-holder has-right-sidebar" id="poststuff">
 		<div class="inner-sidebar" style="display:block">
 		    <div class="postbox">
-			<h3 class="hndle"><span>Publish</span></h3>
+			<h3 class="hndle"><span>'.__('Publish','workbox_video').'</span></h3>
 			    <div id="submitpost" class="submitbox">
                                 <div id="major-publishing-actions">';
 				if ($item_id>0) {
 				    $html.='<div id="delete-action">
-					<a href="JavaScript:" onclick="doDelete()" class="submitdelete deletion">Delete</a>
+					<a href="JavaScript:" onclick="doDelete()" class="submitdelete deletion">'.__('Delete','workbox_video').'</a>
 				    </div>';
 				}  
 				    $html.='
                                     <div id="publishing-action">
-					<a href="JavaScript:" onclick="doCancel();">back to list</a>&nbsp;&nbsp;&nbsp;
-					<input type="button" onclick="doSave()" value="Publish" class="button-primary" >
+					<a href="JavaScript:" onclick="doCancel();">'.__('back to list','workbox_video').'</a>&nbsp;&nbsp;&nbsp;
+					<input type="button" onclick="doSave()" value="'.__('Publish','workbox_video').'" class="button-primary" >
 				    </div>
 				    <div class="clear"></div>
 				</div>
@@ -488,16 +493,16 @@ class workbox_YV_video {
         $html.= '
                 <table border="0" width="100%">
                     <tr>
-                        <td width="30%" align="right"><b>Video Name</td>
+                        <td width="30%" align="right"><b>'.__('Video Name','workbox_video').'</td>
                         <td width="70%">
 							<input type="text" name="title" value="'.self::_get('title',$wb_form_info).'" style="width:100%">    
 						</td>
                     </tr>
 					<tr>
-                        <td width="30%" align="right"><b>Video Gallery</td>
+                        <td width="30%" align="right"><b>'.__('Video Gallery','workbox_video').'</td>
 						<td width="70%">
 						<select name="gallery_id" style="width:100%;">
-                            <option value="0">not attached to any gallery</option>
+                            <option value="0">'.__('not attached to any gallery','workbox_video').'</option>
                         ';
 						$sql = 'select * from '.WB_VIDEO_GALLERIES_TABLE.' order by order_no';
 						$rows = $wpdb->get_results($sql);
@@ -517,7 +522,7 @@ class workbox_YV_video {
 									$html.='<option value="'.$item->id.'" '.$selected.'>'.$item->title.'</option>';
 								}
 								else {
-									$html.='<option value="'.$item->id.'" '.$selected.'>'.$item->title.' (Gallery is not active)</option>';
+									$html.='<option value="'.$item->id.'" '.$selected.'>'.$item->title.' ('.__('Gallery is not active','workbox_video').')</option>';
 								}
 							}
 						}
@@ -526,13 +531,13 @@ class workbox_YV_video {
 						</td>
                     </tr>
 					<tr>
-                        <td width="30%" align="right"><b>Video URL</td>
+                        <td width="30%" align="right"><b>'.__('Video URL','workbox_video').'</td>
                         <td width="70%">
 							<input type="text" name="url" value="'.self::_get('url',$wb_form_info).'" style="width:100%">    
 						</td>
                     </tr>
 					<tr>
-                        <td width="30%" align="right" valign="top"><br><br><b>Video Description</td>
+                        <td width="30%" align="right" valign="top"><br><br><b>'.__('Video Description','workbox_video').'</td>
 						<td width="70%">
 						';
 						if ( version_compare( $wp_version, '3.3', '>=' ) ) {
@@ -552,7 +557,7 @@ class workbox_YV_video {
 						</td>
                     </tr>
 					<tr>
-                        <td width="30%" align="right"><b>Show video?</td>
+                        <td width="30%" align="right"><b>'.__('Show video?','workbox_video').'</td>
                         <td width="70%">
 							<input type="checkbox" name="is_live" value="1" '.(self::_get('is_live',$wb_form_info,1) == 1?'checked':'').'>    
 						</td>
@@ -589,13 +594,13 @@ class workbox_YV_video {
 			$html.= '
 			<div class="wrap">
             <br>
-			<h2>List of videos in '.$rows[0]->title.'<a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&gallery='.$gallery_id.'" class="add-new-h2">Add New</a></h2>';
+			<h2>'.__('List of videos in','workbox_video').' '.$rows[0]->title.'<a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&gallery='.$gallery_id.'" class="add-new-h2">'.__('Add New','workbox_video').'</a></h2>';
 		}
 		else {
 			$html.= '
 			<div class="wrap">
             <br>
-			<h2>Error</h2>';
+			<h2>'.__('Error','workbox_video').'</h2>';
 		}
             //<h2>List of videos <a href="admin.php?page='.WB_VIDEO_PAGE.'&edit" class="add-new-h2">Add New</a></h2>
         if (count($list)>0) {
@@ -605,9 +610,9 @@ class workbox_YV_video {
 				<thead>
 					<tr>
 					<th class="manage-column" width="50">&nbsp;</th>
-					<th class="manage-column">Video Title</th>
-					<th class="manage-column" width="120">Video Thumbnail</th>
-					<th class="manage-column" width="100">Sort</th>
+					<th class="manage-column">'.__('Video Title', 'workbox_video').'</th>
+					<th class="manage-column" width="120">'.__('Video Thumbnail','workbox_video').'</th>
+					<th class="manage-column" width="100">'.__('Sort','workbox_video').'</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -615,16 +620,16 @@ class workbox_YV_video {
 				$tr_style = 'style="background-color: #'.($item->is_live?"ccffcc":"ffcccc").'"';
 				$color_border = !$item->is_live?'#fff':'#ccc';
 				$html.='<tr class="iedit" '.$tr_style.'>'; 
-				$html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&id='.$item->id.'">edit</a></td>';
+				$html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_PAGE.'&edit&id='.$item->id.'">'.__('edit','workbox_video').'</a></td>';
 				$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.$item->title.'</td>';
 				$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'"><img src="'.$item->image.'" width="120"></td>';
-				$html.= '<td valign="middle" align="center"><a href="admin.php?page=gallery_'.$gallery_id.'&move=down&id='.$item->id.'">Up</a> / <a href="admin.php?page=gallery_'.$gallery_id.'&move=up&id='.$item->id.'">Down</a></td>';
+				$html.= '<td valign="middle" align="center"><a href="admin.php?page=gallery_'.$gallery_id.'&move=down&id='.$item->id.'">'.__('Up','workbox_video').'</a> / <a href="admin.php?page=gallery_'.$gallery_id.'&move=up&id='.$item->id.'">'.__('Down','workbox_video').'</a></td>';
 				$html.='</tr>';
 			}
 			$html.='</tbody></table>';
         }
         else {
-            $html.= '<br><br>Currently there are no records';
+            $html.= '<br><br>'.__('Currently there are no records','workbox_video');
         }
         $html.= '</div>';
         echo $html;
@@ -638,14 +643,14 @@ class workbox_YV_video {
 			$item_id = isset($_GET['id'])?intval($_GET['id']):0;
 			$html.= '
 			<div class="wrap"><form action="" method="post" name="edit_form" enctype="multipart/form-data">
-            <h2>'.($item_id?'Edit Record: '.$wb_form_info->title:'Add New Gallery').'</h2>
+            <h2>'.($item_id?__('Edit Record','workbox_video').': '.$wb_form_info->title:__('Add New Gallery','workbox_video')).'</h2>
             <script language="JavaScript">
                 function doCancel() {
 					window.location.href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'";    
 				}
 				function doDelete() {
 					oForm = document.forms.edit_form;
-					if (confirm("Do you really want to delete this record?")) {
+					if (confirm("'.__('Do you really want to delete this record?','workbox_video').'")) {
 						oForm.action_name.value = "delete";
 						oForm.action = "";
 						oForm.target = "_self";
@@ -665,18 +670,18 @@ class workbox_YV_video {
             <div class="metabox-holder has-right-sidebar" id="poststuff">
 			<div class="inner-sidebar" style="display:block">
 		    <div class="postbox">
-			<h3 class="hndle"><span>Publish</span></h3>
+			<h3 class="hndle"><span>'.__('Publish','workbox_video').'</span></h3>
 			    <div id="submitpost" class="submitbox">
                     <div id="major-publishing-actions">';
 				if ($item_id>0) {
 				    $html.='<div id="delete-action">
-					<a href="JavaScript:" onclick="doDelete()" class="submitdelete deletion">Delete</a>
+					<a href="JavaScript:" onclick="doDelete()" class="submitdelete deletion">'.__('Delete','workbox_video').'</a>
 				    </div>';
 				}  
 				$html.='
                     <div id="publishing-action">
-					<a href="JavaScript:" onclick="doCancel();">back to list</a>&nbsp;&nbsp;&nbsp;
-					<input type="button" onclick="doSave()" value="Publish" class="button-primary" >
+					<a href="JavaScript:" onclick="doCancel();">'.__('back to list','workbox_video').'</a>&nbsp;&nbsp;&nbsp;
+					<input type="button" onclick="doSave()" value="'.__('Publish','workbox_video').'" class="button-primary" >
 				    </div>
 				    <div class="clear"></div>
 					</div>
@@ -696,16 +701,16 @@ class workbox_YV_video {
 			$html.= '
                 <table border="0" width="100%">
                     <tr>
-                        <td width="30%" align="right"><b>Gallery Name: </td>
+                        <td width="30%" align="right"><b>'.__('Gallery Name','workbox_video').': </td>
                         <td width="70%">
 							<input type="text" name="title" value="'.self::_get('title',$wb_form_info).'" style="width:100%">    
 						</td>
                    </tr>
 					<tr>
-                        <td width="30%" align="right"><b>Gallery Page: </td>
+                        <td width="30%" align="right"><b>'.__('Gallery Page','workbox_video').': </td>
                         <td width="70%">
 						<select name="post_id" style="width:350px;">
-                            <option value="0">not attached to any page</option>
+                            <option value="0">'.__('not attached to any page','workbox_video').'</option>
                         ';
 						$flag = false;
 						if ($item_id != 0) {
@@ -731,10 +736,10 @@ class workbox_YV_video {
 						</td>
                     </tr>
 					<tr>
-                        <td width="30%" align="right"><b>Gallery Post Page: </td>
+                        <td width="30%" align="right"><b>'.__('Gallery Post Page','workbox_video').': </td>
                         <td width="70%">
 						<select name="post_blog_id" style="width:350px;">
-                            <option value="0">not attached to any post page</option>
+                            <option value="0">'.__('not attached to any post page','workbox_video').'</option>
                         ';
 						$flag = false;
 						if ($item_id != 0) {
@@ -760,12 +765,12 @@ class workbox_YV_video {
 						</td>
                     </tr>
 					<tr>
-                        <td width="30%" align="right" valign="top"><br><br><b>Gallery Description: </td>
+                        <td width="30%" align="right" valign="top"><br><br><b>'.__('Gallery Description','workbox_video').': </td>
 						<td width="70%">
 					';
 			if ( version_compare( $wp_version, '3.3', '>=' ) ) {
 			    ob_start();
-			    wp_editor($wb_form_info->description,'description', array('textarea_name'=>'description'));
+			    wp_editor($wb_form_info->description,'description', array('textarea_name'=>__('description','workbox_video')));
 			    $html.= '<div id="poststuff" >'.ob_get_clean().'</div>';
 			}
 			else {
@@ -779,13 +784,13 @@ class workbox_YV_video {
 						</td>
 					</tr>
 					<tr>
-                        <td width="30%" align="right"><b>Stack videos vertically?</td>
+                        <td width="30%" align="right"><b>'.__('Stack videos vertically?','workbox_video').'</td>
                         <td width="70%">
 							<input type="checkbox" name="is_vertical" value="1" '.(self::_get('is_vertical',$wb_form_info,1) == 1?'checked':'').'>    
 						</td>
                     </tr>
 					<tr>
-                        <td width="30%" align="right"><b>Is Live?</td>
+                        <td width="30%" align="right"><b>'.__('Is Live?','workbox_video').'</td>
                         <td width="70%">
 							<input type="checkbox" name="is_live" value="1" '.(self::_get('is_live',$wb_form_info,1) == 1?'checked':'').'>    
 						</td>
@@ -805,7 +810,7 @@ class workbox_YV_video {
 			$html.= '
 			<div class="wrap">
 				<br>
-				<h2>Gallery List <a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&edit" class="add-new-h2">Add New</a></h2>
+				<h2>'.__('Gallery List','workbox_video').' <a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&edit" class="add-new-h2">'.__('Add New','workbox_video').'</a></h2>
 				';	
 			if (count($list)>0) {
 				$current_url = parse_url($_SERVER['REQUEST_URI']);
@@ -814,10 +819,10 @@ class workbox_YV_video {
 				<thead>
 					<tr>
 						<th class="manage-column" width="50">&nbsp;</th>
-						<th class="manage-column">Gallery Title</th>
-						<th class="manage-column" width="120">Gallery Page</th>
-						<th class="manage-column" width="120">Gallery Post Page</th>
-						<th class="manage-column" width="100">Sort</th>
+						<th class="manage-column">'.__('Gallery Title','workbox_video').'</th>
+						<th class="manage-column" width="120">'.__('Gallery Page','workbox_video').'</th>
+						<th class="manage-column" width="120">'.__('Gallery Post Page','workbox_video').'</th>
+						<th class="manage-column" width="100">'.__('Sort','workbox_video').'</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -825,17 +830,17 @@ class workbox_YV_video {
 					$tr_style = 'style="background-color: #'.($item->is_live?"ccffcc":"ffcccc").'"';
 					$color_border = !$item->is_live?'#fff':'#ccc';
 					$html.='<tr class="iedit" '.$tr_style.'>';
-					$html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&edit&id='.$item->id.'">edit</a></td>';
+					$html.= '<td valign="middle" align="center" style="border-right: 1px dotted '.$color_border.'"><a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&edit&id='.$item->id.'">'.__('edit','workbox_video').'</a></td>';
 					$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.$item->title.'</td>';
 					$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.get_the_title($item->post_id).'</td>';
 					$html.= '<td valign="middle" style="border-right: 1px dotted '.$color_border.'">'.get_the_title($item->post_blog_id).'</td>';
-					$html.= '<td valign="middle" align="center"><a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&move=up&id='.$item->id.'">Up</a> / <a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&move=down&id='.$item->id.'">Down</a></td>';
+					$html.= '<td valign="middle" align="center"><a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&move=up&id='.$item->id.'">'.__('Up','workbox_video').'</a> / <a href="admin.php?page='.WB_VIDEO_GALLERIES_PAGE.'&move=down&id='.$item->id.'">'.__('Down','workbox_video').'</a></td>';
 					$html.='</tr>';
 				}
 				$html.='</tbody></table>';
 			}
 			else {
-				$html.= '<br><br>Currently there are no records';
+				$html.= '<br><br>'.__('Currently there are no records','workbox_video');
 			}
 			$html.= '</div>';
         }
@@ -852,11 +857,11 @@ class workbox_YV_video {
         $html = '';
         $html.= '
         <br>
-        <h2>Workbox Video Plugin Options</h2>';
+        <h2>'.__('Workbox Video Plugin Options','workbox_video').'</h2>';
         
         if (isset($_GET['updated']))
         {
-            $html.= '<h3 style="color:red">Settings updated!</h3>';
+            $html.= '<h3 style="color:red">'.__('Settings updated!','workbox_video').'</h3>';
         }
         
         $html.= '<script language="JavaScript">
@@ -892,13 +897,13 @@ class workbox_YV_video {
             <input type="hidden" name="_workbox_edit_video_VY_options_attempt" value="Yes">
             <table border="0">
                 <tr>
-                    <td width="200" align="right"><b>__Functionality type__:</b></td>
+                    <td width="200" align="right"><b>'.__('__Functionality type__','workbox_video').':</b></td>
                     <td>
-                        <input type="radio" name="wb_video_VY_fw" onclick="wb_setVisible(0)" value="0" '.( $_wb_video_VY_fw == 0?'checked':'').' id="wb_video_fw_1"> <label for="wb_video_fw_1">Select a page</label>
+                        <input type="radio" name="wb_video_VY_fw" onclick="wb_setVisible(0)" value="0" '.( $_wb_video_VY_fw == 0?'checked':'').' id="wb_video_fw_1"> <label for="wb_video_fw_1">'.__('Select a page','workbox_video').'</label>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="radio" name="wb_video_VY_fw" onclick="wb_setVisible(1)" value="1" '.( $_wb_video_VY_fw == 1?'checked':'').' id="wb_video_fw_2"> <label for="wb_video_fw_2">Use a ShortCode</label>
+                        <input type="radio" name="wb_video_VY_fw" onclick="wb_setVisible(1)" value="1" '.( $_wb_video_VY_fw == 1?'checked':'').' id="wb_video_fw_2"> <label for="wb_video_fw_2">'.__('Use a ShortCode','workbox_video').'</label>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="radio" name="wb_video_VY_fw" onclick="wb_setVisible(2)" value="2" '.( $_wb_video_VY_fw == 2?'checked':'').' id="wb_video_fw_3"> <label for="wb_video_fw_3">Use a PHP function</label>
+                        <input type="radio" name="wb_video_VY_fw" onclick="wb_setVisible(2)" value="2" '.( $_wb_video_VY_fw == 2?'checked':'').' id="wb_video_fw_3"> <label for="wb_video_fw_3">'.__('Use a PHP function','workbox_video').'</label>
                     </td>
                 </tr>
             </table>
@@ -922,18 +927,18 @@ class workbox_YV_video {
             
             <table border="0" id="wb_video_VY_fw2" style="display: none;">
                 <tr>
-                    <td width="200" align="right"><b>Using a shortcode:</b></td>
+                    <td width="200" align="right"><b>'.__('Using a shortcode','workbox_video').':</b></td>
                     <td>
-                        Use a shortcode [workbox_video_YV_list gallery_name="Test Post Gallery"] where Test Post Gallery is the name of the gallery you want to use on the page.
+                        '.__('Use a shortcode [workbox_video_YV_list gallery_name="Test Post Gallery"] where Test Post Gallery is the name of the gallery you want to use on the page.','workbox_video').'
                     </td>
                 </tr>
             </table>
             
             <table border="0" id="wb_video_VY_fw3" style="display: none;">
                 <tr>
-                    <td width="200" align="right"><b>Using a function:</b></td>
+                    <td width="200" align="right"><b>'.__('Using a function','workbox_video').':</b></td>
                     <td>
-                        Use a echo workbox_YV_video::showList(); to show a list of videos
+                        '.__('Use a echo workbox_YV_video::showList(); to show a list of videos','workbox_video').'
                     </td>
                 </tr>
             </table>
@@ -942,72 +947,72 @@ class workbox_YV_video {
             $html.= '
 	    <table border="0" width="90%">
                 <tr>
-                    <td width="200" align="right"><b>Show videos on page</b><br><i>0 - no pagination</i>:</td>
+                    <td width="200" align="right"><b>'.__('Show videos on page','workbox_video').'</b><br><i>'.__('0 - no pagination','workbox_video').'</i>:</td>
                     <td>
                         <input type="text" name="wb_video_VY_page_len" value="'.$_wb_video_VY_page_len.'" size="10">
                     </td>
                 </tr>
 		
 		<tr>
-                    <td colspan="2"><br><b>CSS Options (leave the field empty fot default value)</b></td>
+                    <td colspan="2"><br><b>'.__('CSS Options (leave the field empty for default value)','workbox_video').'</b></td>
                 </tr>
 		
 		<tr>
-                    <td width="200" align="right"><b>Pages counter DIV container:</b><br>(.wb_video_pager)<br>&nbsp;</td>
+                    <td width="200" align="right"><b>'.__('Pages counter DIV container','workbox_video').':</b><br>(.wb_video_pager)<br>&nbsp;</td>
                     <td>
                         <input type="text" name="class_wb_video_pager" value="'.htmlspecialchars(get_option('class_wb_video_pager')).'" style="width: 100%;">
 			<br>
-			<i>Default value: width: 100%; clear: both;</i>
+			<i>'.__('Default value','workbox_video').': width: 100%; clear: both;</i>
 			<br><br>
                     </td>
                 </tr>
 		<tr>
-                    <td width="200" align="right"><b>Pages counter DIV container link:</b><br>(.wb_video_pager a)<br>&nbsp;</td>
+                    <td width="200" align="right"><b>'.__('Pages counter DIV container link','workbox_video').':</b><br>(.wb_video_pager a)<br>&nbsp;</td>
                     <td>
                         <input type="text" name="class_wb_video_pager_a" value="'.htmlspecialchars(get_option('class_wb_video_pager_a')).'" style="width: 100%;">
 			<br>
-			<i>Default value: none</i>
+			<i>'.__('Default value','workbox_video').': none</i>
 			<br><br>
                     </td>
                 </tr>
 		<tr>
-                    <td width="200" align="right"><b>Main container DIV:</b><br>(.wb_video_container)<br>&nbsp;</td>
+                    <td width="200" align="right"><b>'.__('Main container DIV','workbox_video').':</b><br>(.wb_video_container)<br>&nbsp;</td>
                     <td>
                         <input type="text" name="class_wb_video_container" value="'.htmlspecialchars(get_option('class_wb_video_container')).'" style="width: 100%;">
 			<br>
-			<i>Default value: width: 100%; padding: 20px 0;</i>
+			<i>'.__('Default value','workbox_video').': width: 100%; padding: 20px 0;</i>
 			<br><br>
                     </td>
                 </tr>
 		<tr>
-                    <td width="200" align="right"><b>Specific item container DIV:</b><br>(.wb_video_item)<br>&nbsp;</td>
+                    <td width="200" align="right"><b>'.__('Specific item container DIV','workbox_video').':</b><br>(.wb_video_item)<br>&nbsp;</td>
                     <td>
                         <input type="text" name="class_wb_video_item" value="'.htmlspecialchars(get_option('class_wb_video_item')).'" style="width: 100%;">
 			<br>
-			<i>Default value: clear: both;</i>
+			<i>'.__('Default value','workbox_video').': clear: both;</i>
 			<br><br>
                     </td>
                 </tr>
 		<tr>
-                    <td width="200" align="right"><b>Image link A:</b><br>(.wb_video_image_link)<br>&nbsp;</td>
+                    <td width="200" align="right"><b>'.__('Image link A','workbox_video').':</b><br>(.wb_video_image_link)<br>&nbsp;</td>
                     <td>
                         <input type="text" name="class_wb_video_image_link" value="'.htmlspecialchars(get_option('class_wb_video_image_link')).'" style="width: 100%;">
 			<br>
-			<i>Default value: float: left; padding: 0 20px 20px 0;</i>
+			<i>'.__('Default value','workbox_video').': float: left; padding: 0 20px 20px 0;</i>
 			<br><br>
                     </td>
                 </tr>
 		<tr>
-                    <td width="200" align="right"><b>Image:</b><br>(.wb_video_image_img)<br>&nbsp;</td>
+                    <td width="200" align="right"><b>'.__('Image','workbox_video').':</b><br>(.wb_video_image_img)<br>&nbsp;</td>
                     <td>
                         <input type="text" name="class_wb_video_image_img" value="'.htmlspecialchars(get_option('class_wb_video_image_img')).'" style="width: 100%;">
 			<br>
-			<i>Default value: none</i>
+			<i>'.__('Default value','workbox_video').': none</i>
 			<br><br>
                     </td>
                 </tr>
 		<tr>
-                    <td width="200" align="right"><b>Video title link A:</b><br>(.wb_video_title)<br>&nbsp;</td>
+                    <td width="200" align="right"><b>'.__('Video title link A','workbox_video').':</b><br>(.wb_video_title)<br>&nbsp;</td>
                     <td>
                         <input type="text" name="class_wb_video_title" value="'.htmlspecialchars(get_option('class_wb_video_title')).'" style="width: 100%;">
 			<br>
@@ -1016,7 +1021,7 @@ class workbox_YV_video {
                     </td>
                 </tr>
 			<tr>
-                    <td width="200" align="right"><b>Video description container DIV:</b><br>(.wb_video_description)<br>&nbsp;</td>
+                    <td width="200" align="right"><b>'.__('Video description container DIV','workbox_video').':</b><br>(.wb_video_description)<br>&nbsp;</td>
                     <td>
                         <input type="text" name="class_wb_video_description" value="'.htmlspecialchars(get_option('class_wb_video_description')).'" style="width: 100%;">
 			<br>
@@ -1025,13 +1030,13 @@ class workbox_YV_video {
                     </td>
             </tr>
 			<tr>
-				<td width="200" align="right"><b>Count of video in line:</b></td>
+				<td width="200" align="right"><b>'.__('Count of video in line','workbox_video').':</b></td>
 				<td><input type="text" name="class_wb_video_count_in_line" value="'.htmlspecialchars(get_option('class_wb_video_count_in_line')).'" style="width: 100%;"></td>
 			</tr>
             <tr>
                 <td width="200" align="right">&nbsp;</td>
                 <td>
-					<input type="submit" value="Update Options">
+					<input type="submit" value="'.__('Update Options','workbox_video').'">
                 </td>
             </tr>
             </table>
