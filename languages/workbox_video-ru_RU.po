@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: workbox_video\n"
 "POT-Creation-Date: 2014-05-29 12:27+0600\n"
-"PO-Revision-Date: 2014-05-29 12:29+0600\n"
+"PO-Revision-Date: 2014-05-29 18:24+0600\n"
 "Last-Translator: Artem Pavlenko <pavlenko_artem1@mail.ru>\n"
 "Language-Team: workbox <artem.pavlenko@workbox.com>\n"
 "Language: ru_RU\n"
@@ -58,7 +58,7 @@ msgstr "Изображение видео"
 #: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:386
 #: repo/workbox_video.php:623 repo/workbox_video.php:833
 msgid "edit"
-msgstr "редкатировать"
+msgstr "редактировать"
 
 #: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:394
 msgid "not attached"
@@ -121,7 +121,7 @@ msgstr "Описание видео"
 
 #: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:560
 msgid "Show video?"
-msgstr "Показвать видео?"
+msgstr "Показывать видео?"
 
 #: D:\wb\vimeo plugin\wordpress repo/workbox_video.php:597
 msgid "List of videos in"
