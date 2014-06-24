@@ -3,7 +3,7 @@
     Author: Workbox Inc.
     Author URI: http://www.workbox.com/
     Plugin URI: http://blog.workbox.com/wordpress-video-gallery-plugin/
-    Version: 2.3.2
+    Version: 2.3.3
     Description: The plugin allows to create a video gallery on any wordpress-generated page. 
 	You can add videos from Youtube, Vimeo and Wistia by simply pasting the video URL. 
 	Allows to control sort order of videos on the gallery page. Video galleries can be called on a page by using shortcodes now.
@@ -90,58 +90,62 @@ class workbox_YV_video {
 	//check tables in DB, if not exists, creates their
 	public function checkTables() {
 		global $wpdb;
-		$r = mysql_query('SELECT 1 FROM `'.WB_VIDEO_TABLE.'` WHERE 0');
-		if (!$r) {
-			$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
-			  `id` int(11) NOT NULL auto_increment,
-			  `title` varchar(255) default NULL,
-			  `url` varchar(255) default NULL,
-			  `image` varchar(255) default NULL,
-			  `code` text,
-			  `description` text,
-			  `is_live` int(1) default NULL,
-			  `order_no` int(11) default NULL,
-			  `gallery_id` int(11) default NULL,
-			  PRIMARY KEY  (`id`)
-			)
-			';
-			$wpdb->query($sql);
-		}
-		else {
-			$r = mysql_query('select gallery_id from '.WB_VIDEO_TABLE.' limit 1');
+		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+		if (!$mysqli->connect_errno) {
+			$r = $mysqli->query('SELECT 1 FROM `'.WB_VIDEO_TABLE.'` WHERE 0');
 			if (!$r) {
-				$sql = 'alter table '.WB_VIDEO_TABLE.' add gallery_id int(11) after order_no';
+				$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
+				  `id` int(11) NOT NULL auto_increment,
+				  `title` varchar(255) default NULL,
+				  `url` varchar(255) default NULL,
+				  `image` varchar(255) default NULL,
+				  `code` text,
+				  `description` text,
+				  `is_live` int(1) default NULL,
+				  `order_no` int(11) default NULL,
+				  `gallery_id` int(11) default NULL,
+				  PRIMARY KEY  (`id`)
+				)
+				';
 				$wpdb->query($sql);
 			}
-		}
-		$r = mysql_query('SELECT 1 FROM `'.WB_VIDEO_GALLERIES_TABLE.'` WHERE 0');
-		if (!$r) {
-			$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
-			  `id` int(11) NOT NULL auto_increment,
-			  `title` varchar(255) default NULL,
-			  `description` text,
-			  `post_id` int(11) default NULL,
-			  `post_blog_id` int(11) default NULL,
-			  `is_vertical` int(1) default NULL,
-			  `is_live` int(1) default NULL,
-			  `order_no` int(11) default NULL,
-			  PRIMARY KEY  (`id`)
-			)
-			';
-			$wpdb->query($sql);
-		}
-		else {
-			$r = mysql_query('select post_blog_id from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
+			else {
+				$r = $mysqli->query('select gallery_id from '.WB_VIDEO_TABLE.' limit 1');
+				if (!$r) {
+					$sql = 'alter table '.WB_VIDEO_TABLE.' add gallery_id int(11) after order_no';
+					$wpdb->query($sql);
+				}
+			}
+			$r = $mysqli->query('SELECT 1 FROM `'.WB_VIDEO_GALLERIES_TABLE.'` WHERE 0');
 			if (!$r) {
-				$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add post_blog_id int(11) after post_id';
+				$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
+				  `id` int(11) NOT NULL auto_increment,
+				  `title` varchar(255) default NULL,
+				  `description` text,
+				  `post_id` int(11) default NULL,
+				  `post_blog_id` int(11) default NULL,
+				  `is_vertical` int(1) default NULL,
+				  `is_live` int(1) default NULL,
+				  `order_no` int(11) default NULL,
+				  PRIMARY KEY  (`id`)
+				)
+				';
 				$wpdb->query($sql);
 			}
-			$r = mysql_query('select is_vertical from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
-			if (!$r) {
-				$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add is_vertical int(1) after post_blog_id';
-				$wpdb->query($sql);
+			else {
+				$r = $mysqli->query('select post_blog_id from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
+				if (!$r) {
+					$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add post_blog_id int(11) after post_id';
+					$wpdb->query($sql);
+				}
+				$r = $mysqli->query('select is_vertical from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
+				if (!$r) {
+					$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add is_vertical int(1) after post_blog_id';
+					$wpdb->query($sql);
+				}
 			}
 		}
+		else { echo 'DB Connect Error'; }
 	}
 	
     // outputs the content then functionality is attached to specific page
