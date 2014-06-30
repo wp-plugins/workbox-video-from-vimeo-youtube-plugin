@@ -86,66 +86,97 @@ class workbox_YV_video {
     public function add_style() {
         wp_enqueue_style('fancybox',WB_VID_URL.'jquery.fancybox.css');
     }
+	
+	private function __createVideoTable() {
+		$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
+					  `id` int(11) NOT NULL auto_increment,
+					  `title` varchar(255) default NULL,
+					  `url` varchar(255) default NULL,
+					  `image` varchar(255) default NULL,
+					  `code` text,
+					  `description` text,
+					  `is_live` int(1) default NULL,
+					  `order_no` int(11) default NULL,
+					  `gallery_id` int(11) default NULL,
+					  PRIMARY KEY  (`id`)
+					)
+					';
+		$wpdb->query($sql);
+	}
+	
+	private function __createVideoGalleriesTable() {
+		$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
+					  `id` int(11) NOT NULL auto_increment,
+					  `title` varchar(255) default NULL,
+					  `description` text,
+					  `post_id` int(11) default NULL,
+					  `post_blog_id` int(11) default NULL,
+					  `is_vertical` int(1) default NULL,
+					  `is_live` int(1) default NULL,
+					  `order_no` int(11) default NULL,
+					  PRIMARY KEY  (`id`)
+					)
+					';
+		$wpdb->query($sql);
+	}
     
 	//check tables in DB, if not exists, creates their
 	public function checkTables() {
 		global $wpdb;
-		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-		if (!$mysqli->connect_errno) {
-			$r = $mysqli->query('SELECT 1 FROM `'.WB_VIDEO_TABLE.'` WHERE 0');
-			if (!$r) {
-				$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
-				  `id` int(11) NOT NULL auto_increment,
-				  `title` varchar(255) default NULL,
-				  `url` varchar(255) default NULL,
-				  `image` varchar(255) default NULL,
-				  `code` text,
-				  `description` text,
-				  `is_live` int(1) default NULL,
-				  `order_no` int(11) default NULL,
-				  `gallery_id` int(11) default NULL,
-				  PRIMARY KEY  (`id`)
-				)
-				';
-				$wpdb->query($sql);
+		$hostPort = explode(':', DB_HOST);
+		$host = '';
+		$port = '';
+		if (count($hostPort) > 0) {
+			$host = $hostPort[0];
+		}
+		if (count($hostPort) > 1) {
+			$port = $hostPort[1];
+		}
+		if ($host != '') {
+			if ($port != '') {
+				$mysqli = new mysqli($host, DB_USER, DB_PASSWORD, DB_NAME, $port);
 			}
 			else {
-				$r = $mysqli->query('select gallery_id from '.WB_VIDEO_TABLE.' limit 1');
-				if (!$r) {
-					$sql = 'alter table '.WB_VIDEO_TABLE.' add gallery_id int(11) after order_no';
-					$wpdb->query($sql);
-				}
+				$mysqli = new mysqli($host, DB_USER, DB_PASSWORD, DB_NAME);
 			}
-			$r = $mysqli->query('SELECT 1 FROM `'.WB_VIDEO_GALLERIES_TABLE.'` WHERE 0');
-			if (!$r) {
-				$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
-				  `id` int(11) NOT NULL auto_increment,
-				  `title` varchar(255) default NULL,
-				  `description` text,
-				  `post_id` int(11) default NULL,
-				  `post_blog_id` int(11) default NULL,
-				  `is_vertical` int(1) default NULL,
-				  `is_live` int(1) default NULL,
-				  `order_no` int(11) default NULL,
-				  PRIMARY KEY  (`id`)
-				)
-				';
-				$wpdb->query($sql);
+			if (!$mysqli->connect_errno) {
+				$r = $mysqli->query('SELECT 1 FROM `'.WB_VIDEO_TABLE.'` WHERE 0');
+				if (!$r) {
+					self::__createVideoTable();
+				}
+				else {
+					$r = $mysqli->query('select gallery_id from '.WB_VIDEO_TABLE.' limit 1');
+					if (!$r) {
+						$sql = 'alter table '.WB_VIDEO_TABLE.' add gallery_id int(11) after order_no';
+						$wpdb->query($sql);
+					}
+				}
+				$r = $mysqli->query('SELECT 1 FROM `'.WB_VIDEO_GALLERIES_TABLE.'` WHERE 0');
+				if (!$r) {
+					self::__createVideoGalleriesTable();
+				}
+				else {
+					$r = $mysqli->query('select post_blog_id from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
+					if (!$r) {
+						$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add post_blog_id int(11) after post_id';
+						$wpdb->query($sql);
+					}
+					$r = $mysqli->query('select is_vertical from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
+					if (!$r) {
+						$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add is_vertical int(1) after post_blog_id';
+						$wpdb->query($sql);
+					}
+				}
 			}
 			else {
-				$r = $mysqli->query('select post_blog_id from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
-				if (!$r) {
-					$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add post_blog_id int(11) after post_id';
-					$wpdb->query($sql);
-				}
-				$r = $mysqli->query('select is_vertical from '.WB_VIDEO_GALLERIES_TABLE.' limit 1');
-				if (!$r) {
-					$sql = 'alter table '.WB_VIDEO_GALLERIES_TABLE.' add is_vertical int(1) after post_blog_id';
-					$wpdb->query($sql);
-				}
+				self::__createVideoTable();
+				self::__createVideoGalleriesTable();
 			}
 		}
-		else { echo 'DB Connect Error'; }
+		else {
+			self::__createVideoTable();
+			self::__createVideoGalleriesTable();
+		}
 	}
 	
     // outputs the content then functionality is attached to specific page
