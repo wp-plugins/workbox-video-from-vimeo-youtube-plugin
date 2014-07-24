@@ -88,6 +88,7 @@ class workbox_YV_video {
     }
 	
 	private function __createVideoTable() {
+		global $wpdb;
 		$sql = 'CREATE TABLE `'.WB_VIDEO_TABLE.'` (
 					  `id` int(11) NOT NULL auto_increment,
 					  `title` varchar(255) default NULL,
@@ -105,6 +106,7 @@ class workbox_YV_video {
 	}
 	
 	private function __createVideoGalleriesTable() {
+		global $wpdb;
 		$sql = 'CREATE TABLE `'.WB_VIDEO_GALLERIES_TABLE.'` (
 					  `id` int(11) NOT NULL auto_increment,
 					  `title` varchar(255) default NULL,
