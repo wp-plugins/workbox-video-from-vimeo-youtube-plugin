@@ -8,7 +8,7 @@
 	You can add videos from Youtube, Vimeo and Wistia by simply pasting the video URL. 
 	Allows to control sort order of videos on the gallery page. Video galleries can be called on a page by using shortcodes now.
 	This plugin is for advanced users. If you run into problems, please send us detailed notes about your set up and the errors and we'll do our best to get back to you.
-
+	Spanish translation by Andrew Kurtis <a href="http://www.webhostinghub.com/">@WebHostingHub</a>
     == Copyright ==
     Copyright 2008-2013 Workbox Inc (email: support@workbox.com) 
 
