@@ -314,14 +314,17 @@ class workbox_YV_video {
 				}
 				$html.= '</div>';
 				if ($flagOfBegin == true) {
-					if ($index == $countInLine) {
+					if (($index == $countInLine) && ($item->is_vertical == 0)) {
 						$html.= '</div>';
 						$index = 0;
 					}
 					$index++;
 				}
 			}
-			if ( ($index <= $countInLine) && ($flagOfBegin == true) && ($index > 1) ) {
+			if ( ($index <= $countInLine) && ($flagOfBegin == true) && ($index > 1) && ($item->is_vertical == 0) ) {
+				$html.= '</div>';
+			}
+			else if ($item->is_vertical == 1) {
 				$html.= '</div>';
 			}
 			$html.= '</div>';
