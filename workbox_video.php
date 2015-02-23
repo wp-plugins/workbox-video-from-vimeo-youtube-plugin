@@ -3,7 +3,7 @@
     Author: Workbox Inc.
     Author URI: http://www.workbox.com/
     Plugin URI: http://blog.workbox.com/wordpress-video-gallery-plugin/
-    Version: 2.3.4
+    Version: 2.3.5
     Description: The plugin allows to create a video gallery on any wordpress-generated page. 
 	You can add videos from Youtube, Vimeo and Wistia by simply pasting the video URL. 
 	Allows to control sort order of videos on the gallery page. Video galleries can be called on a page by using shortcodes now.
@@ -63,7 +63,7 @@ class workbox_YV_video {
 	<style>
 	    .wb_video_pager {'.(get_option('class_wb_video_pager') != ''?get_option('class_wb_video_pager'):'width: 100%; clear: both;').'}
 	    .wb_video_pager a {'.(get_option('class_wb_video_pager_a') != ''?get_option('class_wb_video_pager_a'):'').'}
-	    .wb_video_container {'.(get_option('class_wb_video_container') != ''?get_option('class_wb_video_container'):'width: 100%; padding: 20px 0;').'}
+	    .wb_video_container {'.(get_option('class_wb_video_container') != ''?get_option('class_wb_video_container'):'width: 100%; padding: 20px 0; display: inline-block;').'}
 	    .wb_video_item {'.(get_option('class_wb_video_item') != ''?get_option('class_wb_video_item'):'clear: both;').'}
 	    .wb_video_image_link {'.(get_option('class_wb_video_image_link') != ''?get_option('class_wb_video_image_link'):'float: left; padding: 0 20px 5px 0;').'}
 	    .wb_video_image_img  {'.(get_option('class_wb_video_image_img') != ''?get_option('class_wb_video_image_img'):'').'}
@@ -284,6 +284,9 @@ class workbox_YV_video {
 		$html = $page_html;
 			$html.= '<div class="wb_video_container">';
 			$countInLine = htmlspecialchars(get_option('class_wb_video_count_in_line'));
+			if ($countInLine == '') {
+				$countInLine = 3;
+			}
 			$index = 1;
 			//this flag for begin printing wb_horizontal_container
 			$flagOfBegin = false;
